@@ -1,56 +1,126 @@
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('index');
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Tarea en Odoo</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 30px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea, input[type="number"], input[type="date"] {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; opacity: 0.6;}
+        #mensaje { margin-top: 15px; padding: 10px; border-radius: 4px; display: none; } /* Oculto por defecto */
+        .exito { background-color: #e7f4e7; color: #2e7d32; border: 1px solid #a5d6a7; display: block !important; }
+        .error { background-color: #fce7e7; color: #b71c1c; border: 1px solid #ef9a9a; display: block !important; }
+    </style>
+</head>
+<body>
 
-function createTaskInOdoo(data) {
-  const url = 'https://test-dye.quilsoft.com/jsonrpc';
-  const apiKey = '307529c39bf0de8e607ccbb3c059eb9a7cc22201';
-  const dbName = 'dye_test_0201'; // Reemplaza con el nombre de tu base de datos
-  const userId = 2; // Reemplaza con el ID del usuario
-  const userPassword = '9911'; // Reemplaza con la contraseña del usuario
+    <h1>Crear Nueva Tarea en Odoo</h1>
 
-  const payload = {
-    jsonrpc: '2.0',
-    method: 'call',
-    params: {
-      service: 'object',
-      method: 'execute',
-      args: [
-        dbName,
-        userId,
-        userPassword,
-        'project.task',
-        'create',
-        {
-          name: data.name,
-          description: data.description,
-          project_id: parseInt(data.project_id),
-          user_id: parseInt(data.user_id),
-        },
-      ],
-    },
-    id: 1,
-  };
+    <form id="task-form">
+        <label for="task_name">Nombre de la Tarea:</label>
+        <input type="text" id="task_name" name="task_name" required>
 
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    payload: JSON.stringify(payload),
-  };
+        <label for="project_id">ID del Proyecto:</label>
+        <input type="number" id="project_id" name="project_id" required placeholder="Ej: 1">
+        <small>Necesitas el ID numérico del proyecto en Odoo.</small><br><br>
 
-  try {
-    const response = UrlFetchApp.fetch(url, options);
-    const result = JSON.parse(response.getContentText());
+        <label for="description">Descripción (Opcional):</label>
+        <textarea id="description" name="description" rows="4"></textarea>
 
-    if (result.error) {
-      throw new Error(`Error en Odoo: ${JSON.stringify(result.error)}`);
-    }
+        <label for="user_id">ID del Usuario Asignado (Opcional):</label>
+        <input type="number" id="user_id" name="user_id" placeholder="Ej: 2">
+        <small>ID numérico del usuario en Odoo (res.users).</small><br><br>
 
-    return `Tarea creada exitosamente. ID: ${result.result}`;
-  } catch (error) {
-    throw new Error(`Error al crear la tarea: ${error.message}`);
-  }
-}
+         <label for="deadline">Fecha Límite (Opcional):</label>
+        <input type="date" id="deadline" name="deadline">
+
+        <button type="submit" id="submit-button">Crear Tarea</button>
+    </form>
+
+    <div id="mensaje"></div>
+
+    <script>
+        const form = document.getElementById('task-form');
+        const mensajeDiv = document.getElementById('mensaje');
+        const submitButton = document.getElementById('submit-button');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Evita el envío tradicional
+            setLoading(true); // Deshabilitar botón y mostrar carga (opcional)
+
+            const taskData = {
+                name: document.getElementById('task_name').value,
+                project_id: parseInt(document.getElementById('project_id').value),
+                description: document.getElementById('description').value || null,
+                user_id: document.getElementById('user_id').value ? parseInt(document.getElementById('user_id').value) : null,
+                deadline: document.getElementById('deadline').value || null
+            };
+
+             // Limpiar datos nulos/vacíos opcionales si se prefiere no enviarlos
+            if (!taskData.description) delete taskData.description;
+            if (!taskData.user_id) delete taskData.user_id;
+            if (!taskData.deadline) delete taskData.deadline;
+
+
+            // Llamar a la función del servidor Apps Script
+            google.script.run
+                .withSuccessHandler(onSuccess)
+                .withFailureHandler(onFailure)
+                .addOdooTask(taskData);
+        });
+
+        function onSuccess(response) {
+            setLoading(false); // Habilitar botón
+            if (response.success) {
+                showMessage(`¡Tarea creada con éxito! ID: ${response.task_id}`, 'exito');
+                form.reset(); // Limpia el formulario
+            } else {
+                // Si el servidor manejó el error y devolvió success: false
+                showMessage(`Error al crear tarea: ${response.error}`, 'error');
+            }
+        }
+
+        function onFailure(error) {
+            setLoading(false); // Habilitar botón
+            console.error('Error llamando a Apps Script:', error);
+            showMessage(`Error de comunicación: ${error.message}`, 'error');
+        }
+
+        function showMessage(msg, type) {
+            mensajeDiv.textContent = msg;
+            mensajeDiv.className = type; // 'exito' o 'error'
+        }
+
+        function setLoading(isLoading) {
+             submitButton.disabled = isLoading;
+             if (isLoading) {
+                 submitButton.textContent = 'Creando...';
+                 showMessage('', ''); // Limpia mensajes anteriores
+             } else {
+                 submitButton.textContent = 'Crear Tarea';
+             }
+        }
+
+    </script>
+
+</body>
+</html>
