@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crear Tarea - OdooTest App</title>
+    <style>
+      body {
+        font-family: 'Roboto', Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      
+      header {
+        background-color: #875A7B;
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      
+      .form-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+      }
+      
+      input[type="text"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        font-family: inherit;
+      }
+      
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+      
+      input[type="date"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      
+      .required:after {
+        content: " *";
+        color: #dc3545;
+      }
+      
+      .btn-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      
+      .btn-primary {
+        background-color: #875A7B;
+        color: white;
+      }
+      
+      .btn-primary:hover {
+        background-color: #68465e;
+      }
+      
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+      }
+      
+      .btn-secondary:hover {
+        background-color: #5a6268;
+      }
+      
+      .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+      
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #875A7B;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+        margin: 0 auto 10px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #666;
+        font-size: 14px;
+      }
+      
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #875A7B;
+        text-decoration: none;
+      }
+      
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Crear Tarea</h1>
+    </header>
+    
+    <div class="container">
+      <a href="?page=index" class="back-link">← Volver al menú principal</a>
+      
+      <div class="alert alert-success" id="success-alert">
+        Tarea creada exitosamente.
+      </div>
+      
+      <div class="alert alert-danger" id="error-alert">
+        Error al crear la tarea.
+      </div>
+      
+      <div class="form-card">
+        <form id="task-form">
+          <div class="form-group">
+            <label for="name" class="required">Nombre de la tarea</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="project_id" class="required">Proyecto</label>
+            <select id="project_id" name="project_id" required>
+              <option value="">Seleccione un proyecto</option>
+              <!-- Los proyectos se cargarán dinámicamente -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Descripción</label>
+            <textarea id="description" name="description"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="user_id">Usuario asignado</label>
+            <select id="user_id" name="user_id">
+              <option value="">Sin asignar</option>
+              <!-- Los usuarios se cargarán dinámicamente -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="date_deadline">Fecha límite</label>
+            <input type="date" id="date_deadline" name="date_deadline">
+          </div>
+          
+          <div class="btn-container">
+            <button type="submit" class="btn btn-primary">Crear Tarea</button>
+            <button type="reset" class="btn btn-secondary">Limpiar</button>
+          </div>
+        </form>
+      </div>
+      
+      <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Procesando solicitud...</p>
+      </div>
+    </div>
+    
+    <footer>
+      <p>OdooTest App &copy; <?= new Date().getFullYear() ?> - Integración con Odoo mediante XML-RPC</p>
+    </footer>
+    
+    <script>
+      // Cargar proyectos y usuarios al iniciar la página
+      document.addEventListener('DOMContentLoaded', function() {
+        loadProjects();
+        loadUsers();
+        
+        // Configurar el formulario
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+          e.preventDefault();
+          createTask();
+        });
+      });
+      
+      function loadProjects() {
+        showLoading(true);
+        
+        google.script.run
+          .withSuccessHandler(function(result) {
+            showLoading(false);
+            
+            if (result.success) {
+              const projectSelect = document.getElementById('project_id');
+              
+              result.projects.forEach(function(project) {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                projectSelect.appendChild(option);
+              });
+            } else {
+              showError('Error al cargar proyectos: ' + result.error);
+            }
+          })
+          .withFailureHandler(function(error) {
+            showLoading(false);
+            showError('Error: ' + error);
+          })
+          .getProjects();
+      }
+      
+      function loadUsers() {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if (result.success) {
+              const userSelect = document.getElementById('user_id');
+              
+              result.users.forEach(function(user) {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.name;
+                userSelect.appendChild(option);
+              });
+            } else {
+              showError('Error al cargar usuarios: ' + result.error);
+            }
+          })
+          .withFailureHandler(function(error) {
+            showError('Error: ' + error);
+          })
+          .getUsers();
+      }
+      
+      function createTask() {
+        showLoading(true);
+        hideAlerts();
+        
+        const formData = {
+          name: document.getElementById('name').value,
+          project_id: document.getElementById('project_id').value,
+          description: document.getElementById('description').value,
+          user_id: document.getElementById('user_id').value,
+          date_deadline: document.getElementById('date_deadline').value
+        };
+        
+        google.script.run
+          .withSuccessHandler(function(result) {
+            showLoading(false);
+            
+            if (result.success) {
+              showSuccess('Tarea creada exitosamente con ID: ' + result.taskId);
+              document.getElementById('task-form').reset();
+            } else {
+              showError('Error al crear tarea: ' + result.error);
+            }
+          })
+          .withFailureHandler(function(error) {
+            showLoading(false);
+            showError('Error: ' + error);
+          })
+          .createTask(formData);
+      }
+      
+      function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+      }
+      
+      function hideAlerts() {
+        document.getElementById('success-alert').style.display = 'none';
+        document.getElementById('error-alert').style.display = 'none';
+      }
+      
+      function showSuccess(message) {
+        const alert = document.getElementById('success-alert');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        
+        // Desplazarse al inicio para ver el mensaje
+        window.scrollTo(0, 0);
+      }
+      
+      function showError(message) {
+        const alert = document.getElementById('error-alert');
+        alert.textContent = message;
+        alert.style.display = 'block';
+        
+        // Desplazarse al inicio para ver el mensaje
+        window.scrollTo(0, 0);
+      }
+    </script>
+  </body>
+</html>

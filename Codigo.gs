@@ -1,260 +1,405 @@
+// Sistema de logging mejorado
+const LOG_LEVELS = {
+  DEBUG: 0,
+  INFO: 1,
+  WARNING: 2,
+  ERROR: 3
+};
+
+// Nivel de log actual (puedes cambiarlo según necesites)
+const CURRENT_LOG_LEVEL = LOG_LEVELS.DEBUG;
+
+// Almacén de logs en memoria
+let logStore = [];
+const MAX_LOGS = 100;
+
 /**
- * CONFIGURACIÓN - ¡IMPORTANTE!
- * Guarda tus credenciales de Odoo de forma segura usando las Propiedades del Script.
- * Ve a Archivo > Propiedades del proyecto > Propiedades del script.
- * Añade las siguientes claves y sus valores correspondientes:
- * ODOO_URL       -> La URL base de tu instancia Odoo (ej: https://tu_dominio.odoo.com)
- * ODOO_DB        -> El nombre de tu base de datos Odoo
- * ODOO_USER      -> El nombre de usuario (login) o email para la API
- * ODOO_PASSWORD  -> La contraseña o Clave API (API Key) del usuario
+ * Registra un mensaje en el log
+ * @param {string} message - Mensaje a registrar
+ * @param {number} level - Nivel de log (DEBUG, INFO, WARNING, ERROR)
+ * @param {Object} data - Datos adicionales para el log
  */
-
-// Función principal que se ejecuta cuando accedes a la URL del Web App
-function doGet(e) {
-  return HtmlService.createHtmlOutputFromFile('index')
-      .setTitle('Crear Tarea en Odoo (Apps Script)');
-      // .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL); // Descomentar si hay problemas embebiendo
-}
-
-// Función llamada desde el JavaScript del cliente para crear la tarea
-function addOdooTask(taskData) {
-  try {
-    const props = PropertiesService.getScriptProperties();
-    const odooUrl = props.getProperty('ODOO_URL');
-    const odooDb = props.getProperty('ODOO_DB');
-    const odooUser = props.getProperty('ODOO_USER');
-    const odooPassword = props.getProperty('ODOO_PASSWORD');
-
-    if (!odooUrl || !odooDb || !odooUser || !odooPassword) {
-      throw new Error("Faltan propiedades del script para la configuración de Odoo.");
-    }
-
-    // 1. Autenticar y obtener UID
-    const uid = authenticateOdoo(odooUrl, odooDb, odooUser, odooPassword);
-    if (!uid) {
-      throw new Error("Fallo en la autenticación con Odoo.");
-    }
-    Logger.log("Autenticación exitosa. UID: " + uid);
-
-    // 2. Preparar datos para Odoo (nombres técnicos)
-    const odooTaskData = {
-      'name': taskData.name,
-      'project_id': taskData.project_id, // Asegúrate que sea un entero
+function logMessage(message, level = LOG_LEVELS.INFO, data = null) {
+  if (level >= CURRENT_LOG_LEVEL) {
+    const timestamp = new Date().toISOString();
+    const levelName = Object.keys(LOG_LEVELS).find(key => LOG_LEVELS[key] === level);
+    
+    const logEntry = {
+      timestamp: timestamp,
+      level: levelName,
+      message: message,
+      data: data
     };
-    if (taskData.description) {
-      odooTaskData['description'] = taskData.description;
+    
+    // Guardar en el almacén de logs
+    logStore.push(logEntry);
+    if (logStore.length > MAX_LOGS) {
+      logStore.shift(); // Eliminar el log más antiguo si excedemos el máximo
     }
-    if (taskData.user_id) {
-      // Formato especial para campos Many2many como user_ids (Asignados)
-      // Si tu campo es Many2one (user_id), sería solo: odooTaskData['user_id'] = taskData.user_id;
-      odooTaskData['user_ids'] = [[6, 0, [taskData.user_id]]];
+    
+    // También registrar en los logs de Apps Script
+    let logString = `[${timestamp}] [${levelName}] ${message}`;
+    if (data) {
+      try {
+        logString += ` - Data: ${JSON.stringify(data)}`;
+      } catch (e) {
+        logString += ` - Data: [No serializable]`;
+      }
     }
-     if (taskData.deadline) {
-      odooTaskData['date_deadline'] = taskData.deadline; // Formato YYYY-MM-DD
-    }
-
-    // 3. Crear la tarea usando execute_kw
-    const taskId = executeOdooKw(odooUrl, odooDb, uid, odooPassword, 'project.task', 'create', [odooTaskData]);
-
-    Logger.log("Tarea creada con éxito. ID: " + taskId);
-    return { success: true, task_id: taskId };
-
-  } catch (error) {
-    Logger.log("Error al crear tarea: " + error.message + "\nStack: " + error.stack);
-    // Devuelve el mensaje de error al cliente
-    return { success: false, error: error.message };
+    
+    Logger.log(logString);
   }
 }
 
-// --- FUNCIONES AUXILIARES PARA XML-RPC ---
+function logDebug(message, data = null) {
+  logMessage(message, LOG_LEVELS.DEBUG, data);
+}
 
-/**
- * Autentica en Odoo y devuelve el User ID (uid).
- */
-function authenticateOdoo(url, db, user, password) {
-  const endpoint = url + '/xmlrpc/2/common';
-  const payload = `
-    <methodCall>
-      <methodName>authenticate</methodName>
-      <params>
-        <param><value><string>${db}</string></value></param>
-        <param><value><string>${user}</string></value></param>
-        <param><value><string>${password}</string></value></param>
-        <param><value><struct></struct></value></param>
-      </params>
-    </methodCall>`;
+function logInfo(message, data = null) {
+  logMessage(message, LOG_LEVELS.INFO, data);
+}
 
-  const options = {
-    'method': 'post',
-    'contentType': 'text/xml',
-    'payload': payload,
-    'muteHttpExceptions': true // Para poder manejar errores nosotros mismos
-  };
+function logWarning(message, data = null) {
+  logMessage(message, LOG_LEVELS.WARNING, data);
+}
 
-  const response = UrlFetchApp.fetch(endpoint, options);
-  const responseCode = response.getResponseCode();
-  const responseBody = response.getContentText();
+function logError(message, data = null) {
+  logMessage(message, LOG_LEVELS.ERROR, data);
+}
 
-  if (responseCode !== 200) {
-    throw new Error(`Error de autenticación (${responseCode}): ${responseBody}`);
-  }
+// Función para obtener los logs almacenados
+function getLogs() {
+  return logStore;
+}
 
-  // Parsear la respuesta XML para obtener el UID
+// Función para limpiar los logs
+function clearLogs() {
+  logStore = [];
+  return { success: true, message: "Logs limpiados correctamente" };
+}
+
+// Función para probar la conexión con información detallada
+function testConnectionDetailed() {
+  logInfo("Iniciando prueba de conexión detallada");
+  
   try {
-    const xmlDoc = XmlService.parse(responseBody);
-    const root = xmlDoc.getRootElement();
-    // Navegar por la estructura XML para encontrar el <int> o <i4> con el UID
-    const valueElement = root.getChild('params').getChild('param').getChild('value');
-    const uidElement = valueElement.getChild('int') || valueElement.getChild('i4'); // Odoo puede usar int o i4
-    if (!uidElement || uidElement.getText() === 'false' || parseInt(uidElement.getText()) === 0) {
-       throw new Error("Autenticación fallida, Odoo devolvió un UID inválido o cero.");
-    }
-    return parseInt(uidElement.getText());
-  } catch (e) {
-    Logger.log("Error parseando XML de autenticación: " + e + "\nResponse: " + responseBody);
-    throw new Error("Error al procesar la respuesta de autenticación de Odoo.");
-  }
-}
-
-/**
- * Ejecuta un método (como 'create', 'search_read', 'write') en un modelo de Odoo.
- */
-function executeOdooKw(url, db, uid, password, model, method, args, kwargs) {
-  const endpoint = url + '/xmlrpc/2/object';
-  kwargs = kwargs || {}; // Opcional: argumentos por palabra clave
-
-  // Construir el payload XML para execute_kw es complejo, especialmente los 'args'
-  // args es una lista que contiene los argumentos posicionales.
-  // Para 'create', args suele ser una lista con UN elemento: el diccionario de datos.
-  // Para 'write', args suele ser una lista con DOS elementos: la lista de IDs y el diccionario de datos.
-  const argsXml = convertJsToXmlRpc(args);
-  const kwargsXml = convertJsToXmlRpc(kwargs); // Convertir kwargs si se usan
-
-  const payload = `
-    <methodCall>
-      <methodName>execute_kw</methodName>
-      <params>
-        <param><value><string>${db}</string></value></param>
-        <param><value><int>${uid}</int></value></param>
-        <param><value><string>${password}</string></value></param>
-        <param><value><string>${model}</string></value></param>
-        <param><value><string>${method}</string></value></param>
-        <param><value>${argsXml}</value></param>
-        ${Object.keys(kwargs).length > 0 ? `<param><value>${kwargsXml}</value></param>` : ''}
-      </params>
-    </methodCall>`;
-
-   const options = {
-    'method': 'post',
-    'contentType': 'text/xml',
-    'payload': payload,
-    'muteHttpExceptions': true
-  };
-
-  const response = UrlFetchApp.fetch(endpoint, options);
-  const responseCode = response.getResponseCode();
-  const responseBody = response.getContentText();
-
-  if (responseCode !== 200) {
-     // Intentar parsear el error si es un Fault XML-RPC
-     try {
-        const xmlDoc = XmlService.parse(responseBody);
-        const faultString = xmlDoc.getRootElement().getChild('fault').getChild('value').getChild('struct')
-                              .getChildren('member').find(m => m.getChild('name').getText() === 'faultString')
-                              .getChild('value').getChild('string').getText();
-        throw new Error(`Error de Odoo RPC: ${faultString}`);
-     } catch(e) {
-        // Si no es un fault XML o falla el parseo, mostrar error genérico
-        throw new Error(`Error en execute_kw (${responseCode}): ${responseBody.substring(0, 500)}`); // Limitar longitud del mensaje
-     }
-  }
-
-  // Parsear la respuesta XML para obtener el resultado (ej: el ID creado)
-   try {
-    const xmlDoc = XmlService.parse(responseBody);
-    const root = xmlDoc.getRootElement();
-    const valueElement = root.getChild('params').getChild('param').getChild('value');
-    // El tipo de retorno varía (int para create, boolean para write, array para search_read)
-    // Asumimos 'create' que devuelve un <int> o <i4>
-    const resultElement = valueElement.getChild('int') || valueElement.getChild('i4');
-     if (resultElement) {
-        return parseInt(resultElement.getText());
-     }
-     // Podrías añadir lógica para parsear otros tipos de respuesta si es necesario
-     Logger.log("Respuesta de execute_kw (no es int): " + valueElement.getValue());
-     // Si no es un entero, podría ser un booleano (ej: write exitoso) u otra cosa.
-     // Para 'create', esperamos un ID. Si no lo es, algo fue mal o la respuesta es inesperada.
-      if (valueElement.getChild('boolean')) { // ej., write devuelve boolean
-          return valueElement.getChild('boolean').getText() === '1';
-      }
-      // Añadir más parseo si es necesario (arrays, structs, etc.)
-      throw new Error("Respuesta inesperada de Odoo execute_kw (no se encontró ID entero).");
-
-  } catch (e) {
-    Logger.log("Error parseando XML de execute_kw: " + e + "\nResponse: " + responseBody);
-    throw new Error("Error al procesar la respuesta de execute_kw de Odoo.");
-  }
-}
-
-
-/**
- * Convierte un valor/objeto JavaScript a su representación XML-RPC <value>.
- * ¡Esta es una versión SIMPLIFICADA! Puede necesitar mejoras para casos complejos.
- */
-function convertJsToXmlRpc(jsValue) {
-  let xml = '';
-  const type = typeof jsValue;
-
-  if (jsValue === null || jsValue === undefined) {
-     xml = '<nil/>'; // Odoo a menudo usa <boolean>0</boolean> para False/null
-     // xml = '<boolean>0</boolean>'; // Alternativa más común con Odoo
-  } else if (type === 'string') {
-    xml = `<string>${escapeXml(jsValue)}</string>`;
-  } else if (type === 'number') {
-    if (Number.isInteger(jsValue)) {
-      xml = `<int>${jsValue}</int>`; // O podría ser <i4>
-    } else {
-      xml = `<double>${jsValue}</double>`;
-    }
-  } else if (type === 'boolean') {
-    xml = `<boolean>${jsValue ? '1' : '0'}</boolean>`;
-  } else if (Array.isArray(jsValue)) {
-    xml = '<array><data>';
-    jsValue.forEach(item => {
-      xml += `<value>${convertJsToXmlRpc(item)}</value>`;
+    const config = getOdooConfig();
+    
+    // Registrar información de configuración (sin contraseña)
+    logInfo("Configuración obtenida", {
+      url: config.url,
+      db: config.db,
+      username: config.username,
+      // No registrar la contraseña por seguridad
     });
-    xml += '</data></array>';
-  } else if (type === 'object' && jsValue !== null && jsValue.constructor === Object) {
-    xml = '<struct>';
-    for (const key in jsValue) {
-      if (jsValue.hasOwnProperty(key)) {
-        xml += '<member>';
-        xml += `<name>${escapeXml(key)}</name>`;
-        xml += `<value>${convertJsToXmlRpc(jsValue[key])}</value>`;
-        xml += '</member>';
-      }
+    
+    // Verificar que los valores de configuración no estén vacíos
+    if (!config.url) {
+      logError("URL de Odoo no configurada");
+      return { success: false, error: "URL de Odoo no configurada" };
     }
-    xml += '</struct>';
-  } else {
-     Logger.log("Tipo no soportado para conversión XML-RPC: " + type);
-     // Por defecto, tratar como string, aunque puede fallar
-     xml = `<string>${escapeXml(String(jsValue))}</string>`;
+    
+    if (!config.db) {
+      logError("Base de datos de Odoo no configurada");
+      return { success: false, error: "Base de datos de Odoo no configurada" };
+    }
+    
+    if (!config.username) {
+      logError("Usuario de Odoo no configurado");
+      return { success: false, error: "Usuario de Odoo no configurado" };
+    }
+    
+    if (!config.password) {
+      logError("Contraseña de Odoo no configurada");
+      return { success: false, error: "Contraseña de Odoo no configurada" };
+    }
+    
+    // Construir la URL de login
+    const loginUrl = config.url + '/xmlrpc/2/common';
+    logInfo("URL de login construida", { loginUrl: loginUrl });
+    
+    // Crear payload XML-RPC
+    logDebug("Creando payload XML-RPC para autenticación");
+    const payload = createXmlRpcPayload('authenticate', [config.db, config.username, config.password, {}]);
+    
+    // Configurar opciones de la solicitud
+    const options = {
+      'method': 'post',
+      'contentType': 'text/xml',
+      'payload': payload,
+      'muteHttpExceptions': true
+    };
+    
+    // Realizar la solicitud HTTP
+    logInfo("Enviando solicitud de autenticación a Odoo");
+    const response = UrlFetchApp.fetch(loginUrl, options);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    
+    logInfo("Respuesta recibida", { 
+      responseCode: responseCode,
+      responseSize: responseText.length
+    });
+    
+    // Verificar el código de respuesta
+    if (responseCode !== 200) {
+      logError("Error en la respuesta HTTP", { 
+        responseCode: responseCode,
+        responseText: responseText
+      });
+      return { 
+        success: false, 
+        error: "Error HTTP: " + responseCode,
+        details: responseText
+      };
+    }
+    
+    // Analizar la respuesta XML-RPC
+    logDebug("Analizando respuesta XML-RPC");
+    try {
+      const uid = parseXmlRpcResponse(responseText);
+      
+      if (!uid) {
+        logError("Autenticación fallida: UID no recibido");
+        return { 
+          success: false, 
+          error: "Autenticación fallida. Verifique sus credenciales."
+        };
+      }
+      
+      logInfo("Autenticación exitosa", { uid: uid });
+      return { 
+        success: true, 
+        uid: uid,
+        message: "Conexión exitosa a Odoo"
+      };
+    } catch (parseError) {
+      logError("Error al analizar la respuesta XML-RPC", { 
+        error: parseError.toString(),
+        responseText: responseText.substring(0, 500) + (responseText.length > 500 ? "..." : "")
+      });
+      return { 
+        success: false, 
+        error: "Error al analizar la respuesta: " + parseError.toString()
+      };
+    }
+  } catch (error) {
+    logError("Error en la prueba de conexión", { error: error.toString() });
+    return { 
+      success: false, 
+      error: error.toString()
+    };
   }
-  return xml;
 }
 
-/**
- * Escapa caracteres especiales para XML.
- */
-function escapeXml(unsafe) {
-    if (typeof unsafe !== 'string') return unsafe;
-    return unsafe.replace(/[<>&'"]/g, function (c) {
-        switch (c) {
-            case '<': return '&lt;';
-            case '>': return '&gt;';
-            case '&': return '&amp;';
-            case '\'': return '&apos;';
-            case '"': return '&quot;';
-        }
+// Función para obtener información del sistema Odoo
+function getOdooSystemInfo() {
+  logInfo("Obteniendo información del sistema Odoo");
+  
+  try {
+    const config = getOdooConfig();
+    
+    // Construir la URL para la versión
+    const versionUrl = config.url + '/xmlrpc/2/common';
+    logInfo("URL para obtener versión", { versionUrl: versionUrl });
+    
+    // Crear payload XML-RPC para version
+    const payload = createXmlRpcPayload('version', []);
+    
+    // Configurar opciones de la solicitud
+    const options = {
+      'method': 'post',
+      'contentType': 'text/xml',
+      'payload': payload,
+      'muteHttpExceptions': true
+    };
+    
+    // Realizar la solicitud HTTP
+    logInfo("Enviando solicitud de versión a Odoo");
+    const response = UrlFetchApp.fetch(versionUrl, options);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    
+    logInfo("Respuesta recibida", { 
+      responseCode: responseCode,
+      responseSize: responseText.length
     });
+    
+    // Verificar el código de respuesta
+    if (responseCode !== 200) {
+      logError("Error en la respuesta HTTP", { 
+        responseCode: responseCode,
+        responseText: responseText
+      });
+      return { 
+        success: false, 
+        error: "Error HTTP: " + responseCode,
+        details: responseText
+      };
+    }
+    
+    // Analizar la respuesta XML-RPC
+    logDebug("Analizando respuesta XML-RPC de versión");
+    try {
+      const versionInfo = parseXmlRpcResponse(responseText);
+      logInfo("Información de versión obtenida", versionInfo);
+      return { 
+        success: true, 
+        versionInfo: versionInfo
+      };
+    } catch (parseError) {
+      logError("Error al analizar la respuesta XML-RPC de versión", { 
+        error: parseError.toString(),
+        responseText: responseText.substring(0, 500) + (responseText.length > 500 ? "..." : "")
+      });
+      return { 
+        success: false, 
+        error: "Error al analizar la respuesta: " + parseError.toString()
+      };
+    }
+  } catch (error) {
+    logError("Error al obtener información del sistema", { error: error.toString() });
+    return { 
+      success: false, 
+      error: error.toString()
+    };
+  }
+}
+
+// Modificar la función xmlrpcLogin para incluir más logging
+function xmlrpcLogin(url, db, username, password) {
+  logInfo("Iniciando login XML-RPC", { url: url, db: db, username: username });
+  
+  try {
+    const loginUrl = url + '/xmlrpc/2/common';
+    logDebug("URL de login", { loginUrl: loginUrl });
+    
+    const payload = createXmlRpcPayload('authenticate', [db, username, password, {}]);
+    logDebug("Payload XML-RPC creado");
+    
+    const options = {
+      'method': 'post',
+      'contentType': 'text/xml',
+      'payload': payload,
+      'muteHttpExceptions': true
+    };
+    
+    logInfo("Enviando solicitud de autenticación");
+    const response = UrlFetchApp.fetch(loginUrl, options);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    
+    logInfo("Respuesta recibida", { responseCode: responseCode });
+    
+    if (responseCode !== 200) {
+      logError("Error de autenticación", { 
+        responseCode: responseCode,
+        responseText: responseText
+      });
+      throw new Error('Error de autenticación: ' + responseText);
+    }
+    
+    logDebug("Analizando respuesta XML-RPC");
+    const uid = parseXmlRpcResponse(responseText);
+    
+    if (!uid) {
+      logError("Autenticación fallida: UID no recibido");
+      throw new Error('Autenticación fallida. Verifique sus credenciales.');
+    }
+    
+    logInfo("Autenticación exitosa", { uid: uid });
+    return uid;
+  } catch (error) {
+    logError("Error en xmlrpcLogin", { error: error.toString() });
+    throw error;
+  }
+}
+
+// Modificar la función xmlrpcExecute para incluir más logging
+function xmlrpcExecute(url, db, uid, password, model, method, args) {
+  logInfo("Ejecutando método XML-RPC", { 
+    url: url, 
+    db: db, 
+    uid: uid, 
+    model: model, 
+    method: method 
+  });
+  
+  try {
+    const executeUrl = url + '/xmlrpc/2/object';
+    logDebug("URL de ejecución", { executeUrl: executeUrl });
+    
+    const payload = createXmlRpcPayload('execute_kw', [db, uid, password, model, method, args]);
+    logDebug("Payload XML-RPC creado");
+    
+    const options = {
+      'method': 'post',
+      'contentType': 'text/xml',
+      'payload': payload,
+      'muteHttpExceptions': true
+    };
+    
+    logInfo("Enviando solicitud de ejecución");
+    const response = UrlFetchApp.fetch(executeUrl, options);
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    
+    logInfo("Respuesta recibida", { responseCode: responseCode });
+    
+    if (responseCode !== 200) {
+      logError("Error en la ejecución", { 
+        responseCode: responseCode,
+        responseText: responseText
+      });
+      throw new Error('Error en la ejecución: ' + responseText);
+    }
+    
+    logDebug("Analizando respuesta XML-RPC");
+    const result = parseXmlRpcResponse(responseText);
+    logInfo("Ejecución exitosa", { resultType: typeof result });
+    
+    return result;
+  } catch (error) {
+    logError("Error en xmlrpcExecute", { error: error.toString() });
+    throw error;
+  }
+}
+
+// Función principal para manejar solicitudes HTTP GET
+function doGet(e) {
+  try {
+    logInfo("Solicitud doGet recibida", e.parameter);
+    const page = e.parameter.page || 'index';
+    
+    // Verificar que el archivo HTML existe
+    let template;
+    switch(page) {
+      case 'index':
+        template = HtmlService.createTemplateFromFile('Index');
+        break;
+      case 'task':
+        template = HtmlService.createTemplateFromFile('task');
+        break;
+      case 'lead':
+        template = HtmlService.createTemplateFromFile('lead');
+        break;
+      case 'debug':
+        template = HtmlService.createTemplateFromFile('debug');
+        break;
+      default:
+        template = HtmlService.createTemplateFromFile('Index');
+    }
+    
+    // Configurar la página web
+    const htmlOutput = template.evaluate()
+      .setTitle('OdooTest App')
+      .setFaviconUrl('https://www.google.com/images/product/chrome_app_logo_2x.png')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+    
+    logInfo("Página HTML generada", { page: page });
+    return htmlOutput;
+  } catch (error) {
+    logError("Error en doGet", { error: error.toString() });
+    return HtmlService.createHtmlOutput('<h1>Error</h1><p>' + error.toString() + '</p>');
+  }
 }

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Diagnóstico - OdooTest App</title>
+    <style>
+      body {
+        font-family: 'Roboto', Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      
+      header {
+        background-color: #875A7B;
+        color: white;
+        padding: 20px 0;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      h1 {
+        margin: 0;
+        font-size: 28px;
+      }
+      
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      
+      .card h2 {
+        margin-top: 0;
+        color: #875A7B;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      
+      .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      
+      .btn-primary {
+        background-color: #875A7B;
+        color: white;
+      }
+      
+      .btn-primary:hover {
+        background-color: #68465e;
+      }
+      
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+      }
+      
+      .btn-secondary:hover {
+        background-color: #5a6268;
+      }
+      
+      .btn-danger {
+        background-color: #dc3545;
+        color: white;
+      }
+      
+      .btn-danger:hover {
+        background-color: #c82333;
+      }
+      
+      .btn-container {
+        margin-bottom: 20px;
+      }
+      
+      .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+      
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      
+      .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+      
+      .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #875A7B;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+        margin: 0 auto 10px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .log-container {
+        max-height: 400px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      
+      .log-entry {
+        margin-bottom: 5px;
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+      }
+      
+      .log-timestamp {
+        color: #6c757d;
+        margin-right: 10px;
+      }
+      
+      .log-level {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin-right: 10px;
+        font-weight: bold;
+      }
+      
+      .log-level-DEBUG {
+        background-color: #e2e3e5;
+        color: #383d41;
+      }
+      
+      .log-level-INFO {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+      
+      .log-level-WARNING {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      
+      .log-level-ERROR {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      
+      .log-message {
+        margin-right: 10px;
+      }
+      
+      .log-data {
+        color: #6c757d;
+        font-style: italic;
+      }
+      
+      .config-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      
+      .config-table th, .config-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .config-table th {
+        background-color: #f2f2f2;
+      }
+      
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #875A7B;
+        text-decoration: none;
+      }
+      
+      .back-link:hover {
+        text-decoration: underline;
+      }
+      
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #666;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Diagnóstico de Conexión</h1>
+    </header>
+    
+    <div class="container">
+      <a href="?page=index" class="back-link">← Volver al menú principal</a>
+      
+      <div class="card">
+        <h2>Configuración Actual</h2>
+        <table class="config-table">
+          <tr>
+            <th>Parámetro</th>
+            <th>Valor</th>
+          </tr>
+          <tr>
+            <td>URL de Odoo</td>
+            <td id="odoo-url">Cargando...</td>
+          </tr>
+          <tr>
+            <td>Base de datos</td>
+            <td id="odoo-db">Cargando...</td>
+          </tr>
+          <tr>
+            <td>Usuario</td>
+            <td id="odoo-user">Cargando...</td>
+          </tr>
+        </table>
+      </div>
+      
+      <div class="card">
+        <h2>Pruebas de Conexión</h2>
+        <div class="btn-container">
+          <button id="test-connection-btn" class="btn btn-primary">Probar Conexión</button>
+          <button id="get-version-btn" class="btn btn-secondary">Obtener Versión</button>
+        </div>
+        
+        <div id="connection-result" style="display: none;"></div>
+        
+        <div class="loading" id="loading">
+          <div class="loading-spinner"></div>
+          <p>Procesando solicitud...</p>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>Registros (Logs)</h2>
+        <div class="btn-container">
+          <button id="refresh-logs-btn" class="btn btn-secondary">Actualizar Logs</button>
+          <button id="clear-logs-btn" class="btn btn-danger">Limpiar Logs</button>
+        </div>
+        
+        <div class="log-container" id="log-container">
+          <p>Cargando logs...</p>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <p>OdooTest App &copy; <?= new Date().getFullYear() ?> - Diagnóstico de Conexión</p>
+    </footer>
+    
+    <script>
+      // Cargar configuración al iniciar la página
+      document.addEventListener('DOMContentLoaded', function() {
+        loadConfiguration();
+        loadLogs();
+        
+        // Configurar botones
+        document.getElementById('test-connection-btn').addEventListener('click', testConnection);
+        document.getElementById('get-version-btn').addEventListener('click', getVersion);
+        document.getElementById('refresh-logs-btn').addEventListener('click', loadLogs);
+        document.getElementById('clear-logs-btn').addEventListener('click', clearLogs);
+      });
+      
+      function loadConfiguration() {
+        google.script.run
+          .withSuccessHandler(function(config) {
+            document.getElementById('odoo-url').textContent = config.url || 'No configurado';
+            document.getElementById('odoo-db').textContent = config.db || 'No configurado';
+            document.getElementById('odoo-user').textContent = config.username || 'No configurado';
+          })
+          .withFailureHandler(function(error) {
+            showError('Error al cargar configuración: ' + error);
+          })
+          .getOdooConfig();
+      }
+      
+      function testConnection() {
+        showLoading(true);
+        hideResults();
+        
+        google.script.run
+          .withSuccessHandler(function(result) {
+            showLoading(false);
+            
+            if (result.success) {
+              showResult('connection-result', 'success', 'Conexión exitosa a Odoo. UID: ' + result.uid);
+            } else {
+              showResult('connection-result', 'danger', 'Error de conexión: ' + result.error);
+              if (result.details) {
+                const detailsElement = document.createElement('pre');
+                detailsElement.textContent = result.details;
+                detailsElement.style.maxHeight = '200px';
+                detailsElement.style.overflow = 'auto';
+                detailsElement.style.backgroundColor = '#f8f9fa';
+                detailsElement.style.padding = '10px';
+                detailsElement.style.marginTop = '10px';
+                detailsElement.style.fontSize = '12px';
+                
+                document.getElementById('connection-result').appendChild(detailsElement);
+              }
+            }
+            
+            // Actualizar logs después de la prueba
+            loadLogs();
+          })
+          .withFailureHandler(function(error) {
+            showLoading(false);
+            showResult('connection-result', 'danger', 'Error: ' + error);
+            loadLogs();
+          })
+          .testConnectionDetailed();
+      }
+      
+      function getVersion() {
+        showLoading(true);
+        hideResults();
+        
+        google.script.run
+          .withSuccessHandler(function(result) {
+            showLoading(false);
+            
+            if (result.success) {
+              const versionInfo = result.versionInfo;
+              let versionHtml = '<div class="alert alert-info">';
+              versionHtml += '<h3>Información del Sistema Odoo</h3>';
+              versionHtml += '<ul>';
+              
+              if (versionInfo.server_version) {
+                versionHtml += '<li><strong>Versión:</strong> ' + versionInfo.server_version + '</li>';
+              }
+              
+              if (versionInfo.server_version_info) {
+                versionHtml += '<li><strong>Información de versión:</strong> ' + versionInfo.server_version_info.join('.') + '</li>';
+              }
+              
+              if (versionInfo.server_serie) {
+                versionHtml += '<li><strong>Serie:</strong> ' + versionInfo.server_serie + '</li>';
+              }
+              
+              if (versionInfo.protocol_version) {
+                versionHtml += '<li><strong>Versión de protocolo:</strong> ' + versionInfo.protocol_version + '</li>';
+              }
+              
+              versionHtml += '</ul></div>';
+              
+              document.getElementById('connection-result').innerHTML = versionHtml;
+              document.getElementById('connection-result').style.display = 'block';
+            } else {
+              showResult('connection-result', 'danger', 'Error al obtener versión: ' + result.error);
+            }
+            
+            // Actualizar logs después de la prueba
+            loadLogs();
+          })
+          .withFailureHandler(function(error) {
+            showLoading(false);
+            showResult('connection-result', 'danger', 'Error: ' + error);
+            loadLogs();
+          })
+          .getOdooSystemInfo();
+      }
+      
+      function loadLogs() {
+        google.script.run
+          .withSuccessHandler(function(logs) {
+            const logContainer = document.getElementById('log-container');
+            
+            if (logs.length === 0) {
+              logContainer.innerHTML = '<p>No hay logs disponibles.</p>';
+              return;
+            }
+            
+            let logHtml = '';
+            
+            logs.forEach(function(log) {
+              logHtml += '<div class="log-entry">';
+              logHtml += '<span class="log-timestamp">' + formatTimestamp(log.timestamp) + '</span>';
+              logHtml += '<span class="log-level log-level-' + log.level + '">' + log.level + '</span>';
+              logHtml += '<span class="log-message">' + log.message + '</span>';
+              
+              if (log.data) {
+                logHtml += '<div class="log-data">' + JSON.stringify(log.data) + '</div>';
+              }
+              
+              logHtml += '</div>';
+            });
+            
+            logContainer.innerHTML = logHtml;
+            
+            // Desplazar al final para ver los logs más recientes
+            logContainer.scrollTop = logContainer.scrollHeight;
+          })
+          .withFailureHandler(function(error) {
+            document.getElementById('log-container').innerHTML = '<p>Error al cargar logs: ' + error + '</p>';
+          })
+          .getLogs();
+      }
+      
+      function clearLogs() {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if (result.success) {
+              document.getElementById('log-container').innerHTML = '<p>Logs limpiados correctamente.</p>';
+            } else {
+              document.getElementById('log-container').innerHTML = '<p>Error al limpiar logs: ' + result.message + '</p>';
+            }
+          })
+          .withFailureHandler(function(error) {
+            document.getElementById('log-container').innerHTML = '<p>Error al limpiar logs: ' + error + '</p>';
+          })
+          .clearLogs();
+      }
+      
+      function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString() + '.' + String(date.getMilliseconds()).padStart(3, '0');
+      }
+      
+      function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+      }
+      
+      function hideResults() {
+        document.getElementById('connection-result').style.display = 'none';
+        document.getElementById('connection-result').innerHTML = '';
+      }
+      
+      function showResult(elementId, type, message) {
+        const element = document.getElementById(elementId);
+        element.innerHTML = '<div class="alert alert-' + type + '">' + message + '</div>';
+        element.style.display = 'block';
+      }
+    </script>
+  </body>
+</html>
