@@ -1,196 +1,1158 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OdooTest App</title>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente Odoo</title>
     <style>
-      body {
-        font-family: 'Roboto', Arial, sans-serif;
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-        background-color: #f5f5f5;
-        color: #333;
-      }
-      
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      
-      header {
-        background-color: #875A7B; /* Color de Odoo */
-        color: white;
-        padding: 20px 0;
-        text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      }
-      
-      h1 {
-        margin: 0;
-        font-size: 28px;
-      }
-      
-      .card-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-      }
-      
-      .card {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        padding: 20px;
-        width: 300px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        text-align: center;
-      }
-      
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      }
-      
-      .card h2 {
-        color: #875A7B;
-        margin-top: 0;
-      }
-      
-      .card p {
-        color: #666;
-        margin-bottom: 20px;
-      }
-      
-      .btn {
-        display: inline-block;
-        background-color: #875A7B;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-      }
-      
-      .btn:hover {
-        background-color: #68465e;
-      }
-      
-      .status-container {
-        margin-top: 30px;
-        padding: 15px;
-        border-radius: 8px;
-        background-color: #f9f9f9;
-        text-align: center;
-      }
-      
-      .status-indicator {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 8px;
-      }
-      
-      .status-connected {
-        background-color: #28a745;
-      }
-      
-      .status-disconnected {
-        background-color: #dc3545;
-      }
-      
-      footer {
-        text-align: center;
-        margin-top: 40px;
-        padding: 20px;
-        color: #666;
-        font-size: 14px;
-      }
-      
-      @media (max-width: 768px) {
-        .card-container {
-          flex-direction: column;
-          align-items: center;
+        /* Estilos Generales */
+        body { 
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #875A7B;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 28px;
         }
         
         .card {
-          width: 100%;
-          max-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
         }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>OdooTest App</h1>
-    </header>
-    
-    <div class="container">
-      <div class="card-container">
-        <div class="card">
-          <h2>Crear Tarea</h2>
-          <p>Crea una nueva tarea en un proyecto de Odoo con descripción, usuario asignado y fecha límite.</p>
-          <a href="?page=task" class="btn">Ir a Tareas</a>
-        </div>
         
-        <div class="card">
-          <h2>Crear Lead</h2>
-          <p>Registra un nuevo lead o oportunidad en el CRM de Odoo con información de contacto y prioridad.</p>
-          <a href="?page=lead" class="btn">Ir a Leads</a>
-        </div>
-      </div>
-      
-      <div class="status-container">
-        <div id="connection-status">
-          <span class="status-indicator" id="status-dot"></span>
-          <span id="status-text">Verificando conexión...</span>
-        </div>
-      </div>
-    
-      <div class="card">
-        <h2>Diagnóstico</h2>
-        <p>Herramientas para diagnosticar problemas de conexión y ver logs detallados.</p>
-        <a href="?page=debug" class="btn">Ir a Diagnóstico</a>
-      </div>
+        .card h2 {
+            margin-top: 0;
+            color: #875A7B;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        /* Navegación de pestañas */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-link {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            background-color: #f9f9f9;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-link:hover {
+            background-color: #eee;
+        }
+        
+        .tab-link.active {
+            background-color: #fff;
+            border-color: #ddd;
+            border-bottom: 2px solid #875A7B;
+            color: #875A7B;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Formularios */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .required::after {
+            content: ' *';
+            color: red;
+        }
+        
+        /* Botones */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #875A7B;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #68465e;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .btn-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-info {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #0b7dda;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-container {
+            margin: 20px 0;
+        }
+        
+        /* Alertas */
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* Indicador de carga */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #875A7B;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Menú principal */
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .menu-item {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item h2 {
+            margin: 0 0 10px 0;
+        }
+        
+        .menu-item p {
+            margin: 0;
+            color: #666;
+        }
+        
+        .task {
+            background-color: #e7f4e7;
+            border-color: #a5d6a7;
+        }
+        
+        .lead {
+            background-color: #e3f2fd;
+            border-color: #90caf9;
+        }
+        
+        .debug {
+            background-color: #fff3cd;
+            border-color: #ffecb5;
+        }
+        
+        /* Estilos para debug */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .config-table th, .config-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .config-table th {
+            background-color: #f2f2f2;
+        }
+        
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .log-timestamp {
+            color: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .log-level {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .log-level-DEBUG {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .log-level-INFO {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .log-level-WARNING {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .log-level-ERROR {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .log-message {
+            margin-right: 10px;
+        }
+        
+        .log-data {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cliente Odoo para Apps Script</h1>
+    </header>
 
+    <div class="container">
+        <!-- Navegación de pestañas -->
+        <div class="tabs">
+            <div class="tab-link" data-tab="menu">Menú Principal</div>
+            <div class="tab-link" data-tab="task">Crear Tarea</div>
+            <div class="tab-link" data-tab="lead">Crear Lead</div>
+            <div class="tab-link" data-tab="debug">Diagnóstico</div>
+        </div>
+
+        <!-- Pestaña: Menú Principal -->
+        <div id="menu" class="tab-content">
+            <div class="menu-container">
+                <div class="menu-item task" onclick="activateTab('task')">
+                    <h2>Crear Tarea</h2>
+                    <p>Crea una nueva tarea para un proyecto en Odoo</p>
+                </div>
+                
+                <div class="menu-item lead" onclick="activateTab('lead')">
+                    <h2>Crear Lead</h2>
+                    <p>Registra un nuevo lead o oportunidad de ventas en Odoo CRM</p>
+                </div>
+                
+                <div class="menu-item debug" onclick="activateTab('debug')">
+                    <h2>Diagnóstico</h2>
+                    <p>Verifica la conexión con Odoo y consulta los logs del sistema</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña: Crear Tarea -->
+        <div id="task" class="tab-content">
+            <div class="card">
+                <h2>Crear Tarea en Odoo</h2>
+                
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="task-name" class="required">Nombre de la Tarea</label>
+                        <input type="text" id="task-name" required placeholder="Ej. Hacer llamada al cliente">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-project-id" class="required">ID del Proyecto</label>
+                        <input type="number" id="task-project-id" required placeholder="Ej. 1">
+                        <small>El ID numérico del proyecto en Odoo donde se creará la tarea.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-description">Descripción</label>
+                        <textarea id="task-description" placeholder="Detalles sobre la tarea..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-user-id">Usuario Asignado</label>
+                        <select id="task-user-id">
+                            <option value="">-- Seleccionar usuario --</option>
+                            <option value="1">OdooBot</option>
+                            <option value="2">Administrator</option>
+                            <option value="3">Default User Template</option>
+                            <option value="4">Public user</option>
+                            <option value="5">Portal User Template</option>
+                            <option value="6">Paula Lopez</option>
+                            <option value="7">Diego Prieto</option>
+                            <option value="8">Juan Manuel Torrado</option>
+                            <option value="9">Soledad Cassinelli</option>
+                            <option value="10">Luis Adrover</option>
+                            <option value="11">Cesar Vigna</option>
+                            <option value="12">Carlos Bermudez</option>
+                            <option value="13">Ignacio Espinosa</option>
+                            <option value="14">Brandon Depetris</option>
+                            <option value="15">Juan Martin Venencia</option>
+                            <option value="16">Ramiro Fernández</option>
+                            <option value="17">Roberto Catalá</option>
+                            <option value="18">Ledesma Román</option>
+                            <option value="21">Matias Koller</option>
+                            <option value="22">Ailin Borracci</option>
+                            <option value="23">Matias Corradi</option>
+                            <option value="24">German Gonzalez</option>
+                            <option value="25">Matias Aliaga</option>
+                            <option value="26">Camila Gorosito</option>
+                            <option value="27">Fernanda Frade</option>
+                            <option value="28">Jose Cesanelli</option>
+                            <option value="29">Joaquin Fernandez</option>
+                            <option value="30">Ricardo Vicentin</option>
+                            <option value="31">Delfina Aguirre</option>
+                            <option value="32">Nicolas Scaramuzza</option>
+                            <option value="33">Lucas Morichetti</option>
+                            <option value="34">Nicolas Maucieri</option>
+                            <option value="35">Ignacio Dauria</option>
+                            <option value="38">Adrian Cardinali</option>
+                            <option value="39">Cesar Salinas</option>
+                            <option value="40">Adilson Simch</option>
+                            <option value="41">Marcelo Luft</option>
+                            <option value="42">Pablo Viveros</option>
+                            <option value="43">Marcos Barrientos</option>
+                            <option value="44">Jorgelina Wilhelm</option>
+                            <option value="45">Pablo Casas</option>
+                            <option value="46">Juan Manuel Silva</option>
+                            <option value="47">Sergio Harboure</option>
+                            <option value="48">Renzo Bonavia</option>
+                            <option value="49">Jesica Ochoa</option>
+                            <option value="50">Cristian Zanello</option>
+                            <option value="51">Martin Aused</option>
+                            <option value="53">Facundo Pagani</option>
+                            <option value="54">Raul Chebaia</option>
+                        </select>
+                        <small>Usuario de Odoo que será asignado a esta tarea.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-deadline">Fecha Límite</label>
+                        <input type="date" id="task-deadline">
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-success">Crear Tarea</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('task-form')">Limpiar</button>
+                    </div>
+                </form>
+                
+                <div id="task-result"></div>
+                
+                <div class="loading" id="task-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Creando tarea...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña: Crear Lead -->
+        <div id="lead" class="tab-content">
+            <div class="card">
+                <h2>Crear Lead en Odoo CRM</h2>
+                
+                <form id="lead-form">
+                    <div class="form-group">
+                        <label for="lead-name" class="required">Nombre</label>
+                        <input type="text" id="lead-name" required placeholder="Ej. Juan">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-last-name" class="required">Apellido</label>
+                        <input type="text" id="lead-last-name" required placeholder="Ej. Pérez">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-city">Localidad</label>
+                        <input type="text" id="lead-city" placeholder="Ej. Rosario">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-state">Provincia</label>
+                        <input type="text" id="lead-state" placeholder="Ej. Santa Fe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-country">País</label>
+                        <input type="text" id="lead-country" placeholder="Ej. Argentina">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-phone">Teléfono</label>
+                        <input type="tel" id="lead-phone" placeholder="Ej. +54 341 1234567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-email">Correo electrónico</label>
+                        <input type="email" id="lead-email" placeholder="Ej. contacto@empresa.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-description">Descripción / Notas</label>
+                        <textarea id="lead-description" placeholder="Información adicional sobre el lead..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lead-user-id">Comercial Asignado</label>
+                        <select id="lead-user-id">
+                            <option value="">-- Seleccionar vendedor --</option>
+                            <option value="1">OdooBot</option>
+                            <option value="2">Administrator</option>
+                            <option value="3">Default User Template</option>
+                            <option value="4">Public user</option>
+                            <option value="5">Portal User Template</option>
+                            <option value="6">Paula Lopez</option>
+                            <option value="7">Diego Prieto</option>
+                            <option value="8">Juan Manuel Torrado</option>
+                            <option value="9">Soledad Cassinelli</option>
+                            <option value="10">Luis Adrover</option>
+                            <option value="11">Cesar Vigna</option>
+                            <option value="12">Carlos Bermudez</option>
+                            <option value="13">Ignacio Espinosa</option>
+                            <option value="14">Brandon Depetris</option>
+                            <option value="15">Juan Martin Venencia</option>
+                            <option value="16">Ramiro Fernández</option>
+                            <option value="17">Roberto Catalá</option>
+                            <option value="18">Ledesma Román</option>
+                            <option value="21">Matias Koller</option>
+                            <option value="22">Ailin Borracci</option>
+                            <option value="23">Matias Corradi</option>
+                            <option value="24">German Gonzalez</option>
+                            <option value="25">Matias Aliaga</option>
+                            <option value="26">Camila Gorosito</option>
+                            <option value="27">Fernanda Frade</option>
+                            <option value="28">Jose Cesanelli</option>
+                            <option value="29">Joaquin Fernandez</option>
+                            <option value="30">Ricardo Vicentin</option>
+                            <option value="31">Delfina Aguirre</option>
+                            <option value="32">Nicolas Scaramuzza</option>
+                            <option value="33">Lucas Morichetti</option>
+                            <option value="34">Nicolas Maucieri</option>
+                            <option value="35">Ignacio Dauria</option>
+                            <option value="38">Adrian Cardinali</option>
+                            <option value="39">Cesar Salinas</option>
+                            <option value="40">Adilson Simch</option>
+                            <option value="41">Marcelo Luft</option>
+                            <option value="42">Pablo Viveros</option>
+                            <option value="43">Marcos Barrientos</option>
+                            <option value="44">Jorgelina Wilhelm</option>
+                            <option value="45">Pablo Casas</option>
+                            <option value="46">Juan Manuel Silva</option>
+                            <option value="47">Sergio Harboure</option>
+                            <option value="48">Renzo Bonavia</option>
+                            <option value="49">Jesica Ochoa</option>
+                            <option value="50">Cristian Zanello</option>
+                            <option value="51">Martin Aused</option>
+                            <option value="53">Facundo Pagani</option>
+                            <option value="54">Raul Chebaia</option>
+                        </select>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-info">Crear Lead</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('lead-form')">Limpiar</button>
+                    </div>
+                </form>
+                
+                <div id="lead-result"></div>
+                
+                <div class="loading" id="lead-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Creando lead...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña: Diagnóstico -->
+        <div id="debug" class="tab-content">
+            <div class="card">
+                <h2>Configuración de Odoo</h2>
+                <form id="config-form">
+                    <div class="form-group">
+                        <label for="config-url">URL de Odoo</label>
+                        <input type="url" id="config-url" placeholder="Ej: https://ejemplo.odoo.com">
+                        <small>La URL base de tu instancia Odoo (sin /web u otras rutas)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="config-db">Base de datos</label>
+                        <input type="text" id="config-db" placeholder="Nombre de la base de datos">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="config-user">Usuario</label>
+                        <input type="text" id="config-user" placeholder="Nombre de usuario o email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="config-password">Contraseña / API Key</label>
+                        <input type="password" id="config-password" placeholder="Contraseña o API Key">
+                        <small>Por seguridad, este valor no se muestra aunque esté configurado</small>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+                    </div>
+                </form>
+                
+                <div id="config-result"></div>
+            </div>
+            
+            <div class="card">
+                <h2>Configuración Actual</h2>
+                <table class="config-table">
+                    <tr>
+                        <th>Parámetro</th>
+                        <th>Valor</th>
+                    </tr>
+                    <tr>
+                        <td>URL de Odoo</td>
+                        <td id="odoo-url">Cargando...</td>
+                    </tr>
+                    <tr>
+                        <td>Base de datos</td>
+                        <td id="odoo-db">Cargando...</td>
+                    </tr>
+                    <tr>
+                        <td>Usuario</td>
+                        <td id="odoo-user">Cargando...</td>
+                    </tr>
+                    <tr>
+                        <td>Contraseña / API Key</td>
+                        <td id="odoo-password">Cargando...</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h2>Pruebas de Conexión</h2>
+                <div class="btn-container">
+                    <button id="test-connection-btn" class="btn btn-primary">Probar Conexión</button>
+                    <button id="get-version-btn" class="btn btn-secondary">Obtener Versión</button>
+                </div>
+                
+                <div id="connection-result" style="display: none;"></div>
+                
+                <div class="loading" id="debug-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Procesando solicitud...</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Registros (Logs)</h2>
+                <div class="btn-container">
+                    <button id="refresh-logs-btn" class="btn btn-secondary">Actualizar Logs</button>
+                    <button id="clear-logs-btn" class="btn btn-danger">Limpiar Logs</button>
+                </div>
+                
+                <div class="log-container" id="log-container">
+                    <p>Cargando logs...</p>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
     <footer>
-      <p>OdooTest App &copy; <?= new Date().getFullYear() ?> - Integración con Odoo mediante XML-RPC</p>
+        <p>OdooTest App &copy; <?= new Date().getFullYear() ?> - Cliente Odoo</p>
     </footer>
-    
+
     <script>
-      // Verificar la conexión con Odoo al cargar la página
-      document.addEventListener('DOMContentLoaded', function() {
-        google.script.run
-          .withSuccessHandler(function(result) {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar la pestaña activa
+            const initialTab = '<?= activeTab ?>' || 'menu';
+            activateTab(initialTab);
             
-            if (result.success) {
-              statusDot.className = 'status-indicator status-connected';
-              statusText.textContent = 'Conectado a Odoo (UID: ' + result.uid + ')';
-            } else {
-              statusDot.className = 'status-indicator status-disconnected';
-              statusText.textContent = 'Error de conexión: ' + result.error;
+            // Configurar los formularios
+            setupTaskForm();
+            setupLeadForm();
+            setupDebugFunctions();
+            
+            // Configurar los eventos de cambio de pestaña
+            document.querySelectorAll('.tab-link').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    activateTab(this.dataset.tab);
+                });
+            });
+        });
+        
+        // Función para activar una pestaña
+        function activateTab(tabId) {
+            // Ocultar todos los contenidos de pestañas
+            document.querySelectorAll('.tab-content').forEach(function(content) {
+                content.classList.remove('active');
+            });
+            
+            // Desactivar todos los enlaces de pestaña
+            document.querySelectorAll('.tab-link').forEach(function(link) {
+                link.classList.remove('active');
+            });
+            
+            // Activar la pestaña seleccionada
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Cargar datos específicos de la pestaña si es necesario
+            if (tabId === 'debug') {
+                loadConfiguration();
+                loadLogs();
             }
-          })
-          .withFailureHandler(function(error) {
-            const statusDot = document.getElementById('status-dot');
-            const statusText = document.getElementById('status-text');
+        }
+        
+        // ----- FUNCIONES PARA TAREAS -----
+        function setupTaskForm() {
+            document.getElementById('task-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostrar indicador de carga
+                document.getElementById('task-loading').style.display = 'block';
+                document.getElementById('task-result').innerHTML = '';
+                
+                // Recopilar datos del formulario
+                const taskData = {
+                    name: document.getElementById('task-name').value,
+                    project_id: document.getElementById('task-project-id').value,
+                    description: document.getElementById('task-description').value,
+                    user_id: document.getElementById('task-user-id').value || null,
+                    deadline: document.getElementById('task-deadline').value || null
+                };
+                
+                // Enviar al servidor
+                google.script.run
+                    .withSuccessHandler(onTaskSuccess)
+                    .withFailureHandler(onTaskFailure)
+                    .addOdooTask(taskData);
+            });
+        }
+        
+        function onTaskSuccess(response) {
+            document.getElementById('task-loading').style.display = 'none';
             
-            statusDot.className = 'status-indicator status-disconnected';
-            statusText.textContent = 'Error: ' + error;
-          })
-          .testConnection();
-      });
+            if (response.success) {
+                document.getElementById('task-result').innerHTML = 
+                    `<div class="alert alert-success">¡Tarea creada con éxito! ID: ${response.task_id}</div>`;
+                resetForm('task-form');
+            } else {
+                document.getElementById('task-result').innerHTML = 
+                    `<div class="alert alert-danger">Error: ${response.error}</div>`;
+            }
+        }
+        
+        function onTaskFailure(error) {
+            document.getElementById('task-loading').style.display = 'none';
+            document.getElementById('task-result').innerHTML = 
+                `<div class="alert alert-danger">Error: ${error.message || error}</div>`;
+        }
+        
+        // ----- FUNCIONES PARA LEADS -----
+        function setupLeadForm() {
+            document.getElementById('lead-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostrar indicador de carga
+                document.getElementById('lead-loading').style.display = 'block';
+                document.getElementById('lead-result').innerHTML = '';
+                
+                // Nombre completo (combinación de nombre y apellido)
+                const nombre = document.getElementById('lead-name').value;
+                const apellido = document.getElementById('lead-last-name').value;
+                const nombreCompleto = nombre + ' ' + apellido;
+                
+                // Recopilar datos del formulario
+                const leadData = {
+                    name: nombreCompleto, // El título del lead será el nombre completo
+                    contact_name: nombreCompleto, // El nombre de contacto también será el nombre completo
+                    email: document.getElementById('lead-email').value,
+                    phone: document.getElementById('lead-phone').value,
+                    description: document.getElementById('lead-description').value,
+                    user_id: document.getElementById('lead-user-id').value || null
+                };
+                
+                // Construir una dirección completa con los campos de localidad, provincia y país
+                const ciudad = document.getElementById('lead-city').value;
+                const provincia = document.getElementById('lead-state').value;
+                const pais = document.getElementById('lead-country').value;
+                
+                // Si hay información de ubicación, añadirla a la descripción
+                if (ciudad || provincia || pais) {
+                    let ubicacion = "Ubicación: ";
+                    if (ciudad) ubicacion += ciudad;
+                    if (provincia) ubicacion += (ciudad ? ", " : "") + provincia;
+                    if (pais) ubicacion += ((ciudad || provincia) ? ", " : "") + pais;
+                    
+                    // Añadir la ubicación a la descripción
+                    leadData.description = ubicacion + "\n\n" + leadData.description;
+                }
+                
+                // Enviar al servidor
+                google.script.run
+                    .withSuccessHandler(onLeadSuccess)
+                    .withFailureHandler(onLeadFailure)
+                    .addOdooLead(leadData);
+            });
+        }
+        
+        function onLeadSuccess(response) {
+            document.getElementById('lead-loading').style.display = 'none';
+            
+            if (response.success) {
+                document.getElementById('lead-result').innerHTML = 
+                    `<div class="alert alert-success">¡Lead creado con éxito! ID: ${response.lead_id}</div>`;
+                resetForm('lead-form');
+            } else {
+                document.getElementById('lead-result').innerHTML = 
+                    `<div class="alert alert-danger">Error: ${response.error}</div>`;
+            }
+        }
+        
+        function onLeadFailure(error) {
+            document.getElementById('lead-loading').style.display = 'none';
+            document.getElementById('lead-result').innerHTML = 
+                `<div class="alert alert-danger">Error: ${error.message || error}</div>`;
+        }
+        
+        // ----- FUNCIONES PARA DIAGNÓSTICO -----
+        function setupDebugFunctions() {
+            // Configurar botones de diagnóstico
+            document.getElementById('test-connection-btn').addEventListener('click', testConnection);
+            document.getElementById('get-version-btn').addEventListener('click', getVersion);
+            document.getElementById('refresh-logs-btn').addEventListener('click', loadLogs);
+            document.getElementById('clear-logs-btn').addEventListener('click', clearLogs);
+
+            // Configurar el formulario de configuración de Odoo
+            document.getElementById('config-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Recopilar datos del formulario
+                const configData = {
+                    url: document.getElementById('config-url').value.trim(),
+                    db: document.getElementById('config-db').value.trim(),
+                    username: document.getElementById('config-user').value.trim(),
+                    password: document.getElementById('config-password').value.trim()
+                };
+                
+                // Validación básica
+                let hasError = false;
+                let errorMsg = '';
+                
+                if (!configData.url) {
+                    hasError = true;
+                    errorMsg = 'La URL de Odoo es obligatoria';
+                } else if (!configData.db) {
+                    hasError = true;
+                    errorMsg = 'La base de datos es obligatoria';
+                } else if (!configData.username) {
+                    hasError = true;
+                    errorMsg = 'El nombre de usuario es obligatorio';
+                } else if (!configData.password) {
+                    hasError = true;
+                    errorMsg = 'La contraseña es obligatoria';
+                }
+                
+                if (hasError) {
+                    showConfigResult('danger', errorMsg);
+                    return;
+                }
+                
+                // Mostrar indicador de carga
+                showDebugLoading(true);
+                document.getElementById('config-result').innerHTML = '';
+                
+                // Enviar datos al servidor
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        showDebugLoading(false);
+                        
+                        if (result.success) {
+                            showConfigResult('success', 'Configuración guardada correctamente');
+                            // Recargar la configuración actual
+                            loadConfiguration();
+                            // Limpiar la contraseña por seguridad
+                            document.getElementById('config-password').value = '';
+                        } else {
+                            showConfigResult('danger', 'Error: ' + result.error);
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        showDebugLoading(false);
+                        showConfigResult('danger', 'Error: ' + error);
+                    })
+                    .saveOdooConfig(configData);
+            });
+            
+            // Función para mostrar resultados del formulario de configuración
+            function showConfigResult(type, message) {
+                const element = document.getElementById('config-result');
+                element.innerHTML = '<div class="alert alert-' + type + '">' + message + '</div>';
+                element.style.display = 'block';
+            }
+            
+            // Función para cargar los valores actuales en el formulario de configuración
+            function loadConfigForm() {
+                google.script.run
+                    .withSuccessHandler(function(config) {
+                        document.getElementById('config-url').value = config.url || '';
+                        document.getElementById('config-db').value = config.db || '';
+                        document.getElementById('config-user').value = config.username || '';
+                        // No cargamos la contraseña por seguridad
+                    })
+                    .withFailureHandler(function(error) {
+                        showConfigResult('danger', 'Error al cargar configuración: ' + error);
+                    })
+                    .getOdooConfig();
+            }
+        }
+        
+        function testConnection() {
+            showDebugLoading(true);
+            hideDebugResults();
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    showDebugLoading(false);
+                    
+                    if (result.success) {
+                        showDebugResult('success', `Conexión exitosa a Odoo. UID: ${result.uid}`);
+                    } else {
+                        showDebugResult('danger', `Error de conexión: ${result.error}`);
+                        if (result.details) {
+                            const detailsElement = document.createElement('pre');
+                            detailsElement.textContent = result.details;
+                            detailsElement.style.maxHeight = '200px';
+                            detailsElement.style.overflow = 'auto';
+                            detailsElement.style.backgroundColor = '#f8f9fa';
+                            detailsElement.style.padding = '10px';
+                            detailsElement.style.marginTop = '10px';
+                            detailsElement.style.fontSize = '12px';
+                            
+                            document.getElementById('connection-result').appendChild(detailsElement);
+                        }
+                    }
+                    
+                    loadLogs();
+                })
+                .withFailureHandler(function(error) {
+                    showDebugLoading(false);
+                    showDebugResult('danger', 'Error: ' + error);
+                    loadLogs();
+                })
+                .testConnection();
+        }
+        
+        // Cargar la configuración actual en la tabla
+        function loadConfiguration() {
+            google.script.run
+                .withSuccessHandler(function(config) {
+                    document.getElementById('odoo-url').textContent = config.url || 'No configurado';
+                    document.getElementById('odoo-db').textContent = config.db || 'No configurado';
+                    document.getElementById('odoo-user').textContent = config.username || 'No configurado';
+                    document.getElementById('odoo-password').textContent = config.password || 'No configurado';
+                    
+                    // También cargar los valores en el formulario
+                    loadConfigForm();
+                })
+                .withFailureHandler(function(error) {
+                    showDebugError('Error al cargar configuración: ' + error);
+                })
+                .getOdooConfig();
+        }
+        
+        // Cargar los valores actuales en el formulario de configuración
+        function loadConfigForm() {
+            google.script.run
+                .withSuccessHandler(function(config) {
+                    document.getElementById('config-url').value = config.url || '';
+                    document.getElementById('config-db').value = config.db || '';
+                    document.getElementById('config-user').value = config.username || '';
+                    // No cargamos la contraseña por seguridad
+                })
+                .withFailureHandler(function(error) {
+                    showConfigResult('danger', 'Error al cargar configuración: ' + error);
+                })
+                .getOdooConfig();
+        }
+        
+        // Función para mostrar resultados de configuración
+        function showConfigResult(type, message) {
+            const element = document.getElementById('config-result');
+            element.innerHTML = '<div class="alert alert-' + type + '">' + message + '</div>';
+            element.style.display = 'block';
+        }
+        
+        function getVersion() {
+            showDebugLoading(true);
+            hideDebugResults();
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    showDebugLoading(false);
+                    
+                    if (result.success) {
+                        const versionInfo = result.versionInfo;
+                        let versionHtml = '<div class="alert alert-info">';
+                        versionHtml += '<h3>Información del Sistema Odoo</h3>';
+                        versionHtml += '<ul>';
+                        
+                        if (versionInfo.server_version) {
+                            versionHtml += '<li><strong>Versión:</strong> ' + versionInfo.server_version + '</li>';
+                        }
+                        
+                        if (versionInfo.server_version_info) {
+                            versionHtml += '<li><strong>Información de versión:</strong> ' + versionInfo.server_version_info.join('.') + '</li>';
+                        }
+                        
+                        if (versionInfo.server_serie) {
+                            versionHtml += '<li><strong>Serie:</strong> ' + versionInfo.server_serie + '</li>';
+                        }
+                        
+                        if (versionInfo.protocol_version) {
+                            versionHtml += '<li><strong>Versión de protocolo:</strong> ' + versionInfo.protocol_version + '</li>';
+                        }
+                        
+                        versionHtml += '</ul></div>';
+                        
+                        document.getElementById('connection-result').innerHTML = versionHtml;
+                        document.getElementById('connection-result').style.display = 'block';
+                    } else {
+                        showDebugResult('danger', 'Error al obtener versión: ' + result.error);
+                    }
+                    
+                    loadLogs();
+                })
+                .withFailureHandler(function(error) {
+                    showDebugLoading(false);
+                    showDebugResult('danger', 'Error: ' + error);
+                    loadLogs();
+                })
+                .getOdooSystemInfo();
+        }
+        
+        function loadLogs() {
+            google.script.run
+                .withSuccessHandler(function(logs) {
+                    const logContainer = document.getElementById('log-container');
+                    
+                    if (logs.length === 0) {
+                        logContainer.innerHTML = '<p>No hay logs disponibles.</p>';
+                        return;
+                    }
+                    
+                    let logHtml = '';
+                    
+                    logs.forEach(function(log) {
+                        logHtml += '<div class="log-entry">';
+                        logHtml += '<span class="log-timestamp">' + formatTimestamp(log.timestamp) + '</span>';
+                        logHtml += '<span class="log-level log-level-' + log.level + '">' + log.level + '</span>';
+                        logHtml += '<span class="log-message">' + log.message + '</span>';
+                        
+                        if (log.data) {
+                            logHtml += '<div class="log-data">' + JSON.stringify(log.data) + '</div>';
+                        }
+                        
+                        logHtml += '</div>';
+                    });
+                    
+                    logContainer.innerHTML = logHtml;
+                    
+                    // Desplazar al final para ver los logs más recientes
+                    logContainer.scrollTop = logContainer.scrollHeight;
+                })
+                .withFailureHandler(function(error) {
+                    document.getElementById('log-container').innerHTML = '<p>Error al cargar logs: ' + error + '</p>';
+                })
+                .getLogs();
+        }
+        
+        function clearLogs() {
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        document.getElementById('log-container').innerHTML = '<p>Logs limpiados correctamente.</p>';
+                    } else {
+                        document.getElementById('log-container').innerHTML = '<p>Error al limpiar logs: ' + result.message + '</p>';
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    document.getElementById('log-container').innerHTML = '<p>Error al limpiar logs: ' + error + '</p>';
+                })
+                .clearLogs();
+        }
+        
+        // ----- FUNCIONES COMUNES -----
+        function resetForm(formId) {
+            document.getElementById(formId).reset();
+        }
+        
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString() + '.' + String(date.getMilliseconds()).padStart(3, '0');
+        }
+        
+        function showDebugLoading(show) {
+            document.getElementById('debug-loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function hideDebugResults() {
+            document.getElementById('connection-result').style.display = 'none';
+            document.getElementById('connection-result').innerHTML = '';
+        }
+        
+        function showDebugResult(type, message) {
+            const element = document.getElementById('connection-result');
+            element.innerHTML = '<div class="alert alert-' + type + '">' + message + '</div>';
+            element.style.display = 'block';
+        }
+        
+        function showDebugError(message) {
+            showDebugResult('danger', message);
+        }
     </script>
-  </body>
+</body>
 </html>
