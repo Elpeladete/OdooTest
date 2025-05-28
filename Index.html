@@ -263,15 +263,113 @@
             background-color: #e7f4e7;
             border-color: #a5d6a7;
         }
-        
-        .lead {
+          .lead {
             background-color: #e3f2fd;
             border-color: #90caf9;
+        }
+        
+        .ticket {
+            background-color: #f3e5f5;
+            border-color: #ce93d8;
         }
         
         .debug {
             background-color: #fff3cd;
             border-color: #ffecb5;
+        }
+        
+        /* Estilos para botones de utilidad */
+        .utility-buttons {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .btn-small {
+            font-size: 14px;
+            padding: 8px 16px;
+            margin-right: 10px;
+        }
+          .utility-buttons small {
+            display: block;
+            color: #6c757d;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        /* Estilos para archivos adjuntos */
+        .attachment-preview {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .attachment-icon {
+            font-size: 20px;
+            margin-right: 10px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .attachment-info {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .attachment-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .attachment-size {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .attachment-remove {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 3px;
+        }
+        
+        .attachment-remove:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            padding: 8px;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            background-color: #fafafa;
+            cursor: pointer;
+        }
+        
+        .file-input-wrapper input[type=file]:hover {
+            border-color: #875A7B;
+            background-color: #f5f5f5;
         }
         
         /* Estilos para debug */
@@ -348,7 +446,89 @@
             color: #6c757d;
             font-style: italic;
         }
+          /* Ticket Information Display */
+        .ticket-info {
+            padding: 20px;
+        }
         
+        .row {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .col-6 {
+            flex: 0 0 50%;
+            padding: 0 10px;
+        }
+        
+        .col-12 {
+            flex: 0 0 100%;
+            padding: 0 10px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        .info-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        
+        .info-table td:first-child {
+            width: 40%;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .info-table td:last-child {
+            width: 60%;
+        }
+        
+        .description-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+          .ticket-info h5 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #007bff;
+            font-size: 16px;
+        }
+
+        /* Info Box for form information */
+        .info-box {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-box h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #0056b3;
+        }
+        
+        .info-box ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -365,12 +545,12 @@
         <h1>Cliente Odoo para Apps Script</h1>
     </header>
 
-    <div class="container">
-        <!-- Navegación de pestañas -->
-        <div class="tabs">
+    <div class="container">        <!-- Navegación de pestañas -->        <div class="tabs">
             <div class="tab-link" data-tab="menu">Menú Principal</div>
             <div class="tab-link" data-tab="task">Crear Tarea</div>
             <div class="tab-link" data-tab="lead">Crear Lead</div>
+            <div class="tab-link" data-tab="ticket">Crear Ticket</div>
+            <div class="tab-link" data-tab="read-ticket">Leer Tickets</div>
             <div class="tab-link" data-tab="debug">Diagnóstico</div>
         </div>
 
@@ -381,10 +561,14 @@
                     <h2>Crear Tarea</h2>
                     <p>Crea una nueva tarea para un proyecto en Odoo</p>
                 </div>
-                
-                <div class="menu-item lead" onclick="activateTab('lead')">
+                  <div class="menu-item lead" onclick="activateTab('lead')">
                     <h2>Crear Lead</h2>
                     <p>Registra un nuevo lead o oportunidad de ventas en Odoo CRM</p>
+                </div>
+                
+                <div class="menu-item ticket" onclick="activateTab('ticket')">
+                    <h2>Crear Ticket</h2>
+                    <p>Crea un nuevo ticket de soporte o helpdesk en Odoo</p>
                 </div>
                 
                 <div class="menu-item debug" onclick="activateTab('debug')">
@@ -607,6 +791,144 @@
                     <div class="loading-spinner"></div>
                     <p>Creando lead...</p>
                 </div>
+            </div>        </div>        <!-- Pestaña: Crear Ticket -->
+        <div id="ticket" class="tab-content">
+            <div class="card">
+                <h2>Crear Ticket de Soporte en Odoo</h2>
+                  <div class="utility-buttons">
+                    <button type="button" class="btn btn-info btn-small" onclick="loadTicketFormData()" title="Recargar usuarios técnicos desde Odoo">
+                        🔄 Recargar Usuarios
+                    </button>
+                    <small>Recarga la lista de usuarios técnicos desde Odoo</small>
+                </div>
+                  <form id="ticket-form">
+                    <div class="form-group">
+                        <label for="ticket-name" class="required">Título del Ticket</label>
+                        <input type="text" id="ticket-name" required placeholder="Ej. Reparación DJI Mavic Pro">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-priority">Prioridad</label>
+                        <select id="ticket-priority">
+                            <option value="0">Baja</option>
+                            <option value="1" selected>Normal</option>
+                            <option value="2">Alta</option>
+                            <option value="3">Urgente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-partner-name" class="required">Nombre del Cliente</label>
+                        <input type="text" id="ticket-partner-name" required placeholder="Ej. Juan Pérez">
+                        <small>El sistema buscará automáticamente si el cliente existe. Si no existe, se informará en los detalles.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-partner-email">Email del Cliente</label>
+                        <input type="email" id="ticket-partner-email" placeholder="Ej. cliente@empresa.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-partner-phone">Teléfono del Cliente</label>
+                        <input type="tel" id="ticket-partner-phone" placeholder="Ej. +54 341 1234567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-description" class="required">Detalles del Problema</label>
+                        <textarea id="ticket-description" required placeholder="Describe detalladamente el problema. Puedes incluir enlaces (URLs) que se convertirán automáticamente en enlaces clicables.&#10;&#10;Ejemplo: Más información en https://ejemplo.com"></textarea>
+                        <small>📝 Los enlaces web se convertirán automáticamente en enlaces clicables. Los saltos de línea se preservarán.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-attachments">Archivos Adjuntos</label>
+                        <input type="file" id="ticket-attachments" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar">
+                        <small>Puedes seleccionar múltiples archivos. Formatos soportados: PDF, DOC, TXT, imágenes, ZIP (máx. 10MB por archivo)</small>
+                        <div id="attachment-preview" class="attachment-preview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-user-id">Técnico Asignado (Opcional)</label>
+                        <select id="ticket-user-id">
+                            <option value="">-- Seleccionar técnico --</option>
+                            <!-- Se cargarán dinámicamente desde Odoo -->
+                        </select>
+                        <small>Si no se selecciona, se asignará automáticamente</small>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h4>ℹ️ Configuración Automática</h4>
+                        <ul>
+                            <li><strong>Tipo de ticket:</strong> IngresoReparacionesDJI (automático)</li>
+                            <li><strong>Equipo de soporte:</strong> Team GarantíasDJI (automático)</li>
+                            <li><strong>Búsqueda de cliente:</strong> Se buscará automáticamente por nombre</li>
+                            <li><strong>Formato HTML:</strong> Los enlaces se convertirán automáticamente</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-category">Categoría (Manual)</label>
+                        <input type="text" id="ticket-category" placeholder="Ej. Soporte Técnico, Funcional, etc.">
+                        <small>Solo si no se selecciona un tipo de ticket</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-stage-id">Estado del Ticket</label>
+                        <select id="ticket-stage-id">
+                            <option value="">-- Seleccionar estado --</option>
+                            <!-- Se cargarán dinámicamente desde Odoo -->
+                        </select>
+                        <small>Estado o etapa actual del ticket</small>
+                    </div>                      <div class="btn-container">
+                        <button type="submit" class="btn btn-primary">Crear Ticket</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('ticket-form')">Limpiar</button>
+                    </div>
+                </form>
+                
+                <div id="ticket-result"></div>
+                
+                <div class="loading" id="ticket-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Creando ticket...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestaña: Leer Tickets -->
+        <div id="read-ticket" class="tab-content">
+            <div class="card">
+                <h2>🔍 Buscar y Leer Tickets</h2>
+                <p>Busca tickets existentes por ID para verificar su estado y información.</p>
+                
+                <form id="read-ticket-form">
+                    <div class="form-group">
+                        <label for="ticket-search-id">ID del Ticket</label>
+                        <input type="number" id="ticket-search-id" placeholder="Ej: 123" min="1" required>
+                        <small>Introduce el ID numérico del ticket que quieres buscar</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ticket-search-model">Modelo de Búsqueda</label>
+                        <select id="ticket-search-model">
+                            <option value="auto">🤖 Detección Automática</option>
+                            <option value="helpdesk.ticket">🎫 helpdesk.ticket</option>
+                            <option value="project.task">📋 project.task</option>
+                            <option value="crm.lead">💼 crm.lead</option>
+                        </select>
+                        <small>Selecciona el modelo donde buscar o usa detección automática</small>
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-primary">🔍 Buscar Ticket</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('read-ticket-form')">🧹 Limpiar</button>
+                    </div>
+                </form>
+                
+                <div id="read-ticket-result"></div>
+                
+                <div class="loading" id="read-ticket-loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>🔍 Buscando ticket...</p>
+                </div>
             </div>
         </div>
 
@@ -704,23 +1026,40 @@
         <p>OdooTest App &copy; <?= new Date().getFullYear() ?> - Cliente Odoo</p>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script>        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando aplicación OdooTest...');
+            
             // Inicializar la pestaña activa
             const initialTab = '<?= activeTab ?>' || 'menu';
+            console.log('📱 Pestaña inicial:', initialTab);
             activateTab(initialTab);
             
             // Configurar los formularios
+            console.log('⚙️ Configurando formularios...');
             setupTaskForm();
+            console.log('✅ Formulario de tareas configurado');
+            
             setupLeadForm();
+            console.log('✅ Formulario de leads configurado');
+            
+            setupTicketForm();
+            console.log('✅ Formulario de tickets configurado');
+            
+            setupReadTicketForm();
+            console.log('✅ Formulario de lectura de tickets configurado');
+            
             setupDebugFunctions();
+            console.log('✅ Funciones de debug configuradas');
             
             // Configurar los eventos de cambio de pestaña
             document.querySelectorAll('.tab-link').forEach(function(tab) {
                 tab.addEventListener('click', function() {
+                    console.log('🔄 Cambiando a pestaña:', this.dataset.tab);
                     activateTab(this.dataset.tab);
                 });
             });
+            
+            console.log('🎉 Aplicación inicializada correctamente');
         });
         
         // Función para activar una pestaña
@@ -851,11 +1190,506 @@
                     `<div class="alert alert-danger">Error: ${response.error}</div>`;
             }
         }
-        
-        function onLeadFailure(error) {
+          function onLeadFailure(error) {
             document.getElementById('lead-loading').style.display = 'none';
             document.getElementById('lead-result').innerHTML = 
                 `<div class="alert alert-danger">Error: ${error.message || error}</div>`;
+        }        // ----- FUNCIONES PARA TICKETS -----
+        function setupTicketForm() {
+            console.log('🎫 Configurando formulario de tickets...');
+            
+            const form = document.getElementById('ticket-form');
+            if (!form) {
+                console.error('❌ No se encontró el formulario ticket-form');
+                return;
+            }
+              // Cargar datos dinámicos desde Odoo
+            loadTicketFormData();
+            
+            // Configurar el manejo de archivos adjuntos
+            setupAttachmentHandling();
+              form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('🎫 Enviando formulario de ticket...');
+                
+                // Mostrar indicador de carga
+                document.getElementById('ticket-loading').style.display = 'block';
+                document.getElementById('ticket-result').innerHTML = '';                // Recopilar datos del formulario - Simplificado para los nuevos requerimientos
+                const ticketData = {
+                    name: document.getElementById('ticket-name').value,
+                    priority: document.getElementById('ticket-priority').value,
+                    description: document.getElementById('ticket-description').value,
+                    user_id: document.getElementById('ticket-user-id').value || null,
+                    partner_name: document.getElementById('ticket-partner-name').value,
+                    partner_email: document.getElementById('ticket-partner-email').value,
+                    partner_phone: document.getElementById('ticket-partner-phone').value,
+                    category: document.getElementById('ticket-category').value
+                    // Nota: ticket_type_id, team_id se configuran automáticamente en el backend
+                    // partner_id se busca automáticamente por partner_name
+                };
+                
+                console.log('📋 Datos del ticket a enviar:', ticketData);
+                
+                // Preparar archivos adjuntos si los hay
+                if (selectedFiles.length > 0) {
+                    console.log('📎 Preparando archivos adjuntos...');
+                    prepareAttachmentsForUpload()
+                        .then(attachments => {
+                            ticketData.attachments = attachments;
+                            console.log('📤 Enviando ticket con archivos adjuntos...');
+                            sendTicketToServer(ticketData);
+                        })
+                        .catch(error => {
+                            console.error('❌ Error preparando archivos:', error);
+                            document.getElementById('ticket-loading').style.display = 'none';
+                            document.getElementById('ticket-result').innerHTML = 
+                                `<div class="alert alert-danger">Error preparando archivos: ${error.message}</div>`;
+                        });
+                } else {
+                    console.log('📤 Enviando ticket sin archivos adjuntos...');
+                    sendTicketToServer(ticketData);
+                }
+            });
+            
+            console.log('✅ Formulario de tickets configurado correctamente');
+        }
+        
+        // Función auxiliar para enviar ticket al servidor
+        function sendTicketToServer(ticketData) {
+            console.log('📤 Llamando a google.script.run.addOdooTicket...');
+            google.script.run
+                .withSuccessHandler(onTicketSuccess)
+                .withFailureHandler(onTicketFailure)
+                .addOdooTicket(ticketData);
+        }        // Función para cargar datos dinámicos del formulario de tickets - Simplificada
+        function loadTicketFormData() {
+            console.log('📊 Cargando datos dinámicos para formulario de tickets (modo simplificado)...');
+            
+            // Función helper para mostrar estado de carga
+            function showLoadingInDropdown(dropdownId, message) {
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) {
+                    dropdown.innerHTML = `<option value="">${message}</option>`;
+                    dropdown.disabled = true;
+                }
+            }
+            
+            // Función helper para habilitar dropdown después de cargar
+            function enableDropdown(dropdownId) {
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) {
+                    dropdown.disabled = false;
+                }
+            }
+            
+            // Solo cargar usuarios técnicos (el único dropdown que sigue siendo manual)
+            showLoadingInDropdown('ticket-user-id', '⏳ Cargando usuarios...');
+            
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    enableDropdown('ticket-user-id');
+                    populateUsersDropdown(response);
+                })
+                .withFailureHandler(function(error) {
+                    console.error('❌ Error cargando usuarios:', error);
+                    enableDropdown('ticket-user-id');
+                    const dropdown = document.getElementById('ticket-user-id');
+                    if (dropdown) {
+                        dropdown.innerHTML = '<option value="">❌ Error cargando usuarios</option>';
+                    }
+                })
+                .getOdooUsersForForm();
+                
+            console.log('ℹ️ Nota: Tipo de ticket, equipo y cliente se configuran automáticamente');
+        }
+        
+        // Función para poblar dropdown de usuarios
+        function populateUsersDropdown(response) {
+            console.log('👥 Poblando dropdown de usuarios:', response);
+            const dropdown = document.getElementById('ticket-user-id');
+            dropdown.innerHTML = '<option value="">-- Seleccionar técnico --</option>';
+            
+            if (response.success && response.users && response.users.length > 0) {
+                response.users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    dropdown.appendChild(option);
+                });
+                console.log(`✅ ${response.users.length} usuarios cargados`);
+            } else {
+                dropdown.innerHTML = '<option value="">-- No hay usuarios disponibles --</option>';
+                console.log('⚠️ No se encontraron usuarios');
+            }        }
+        
+        function onTicketSuccess(response) {
+            console.log('✅ Respuesta exitosa del servidor:', response);
+            document.getElementById('ticket-loading').style.display = 'none';
+            
+            if (response.success) {
+                let message = `¡Ticket creado con éxito! ID: ${response.ticket_id}`;
+                if (response.model) {
+                    message += ` (${response.model})`;
+                }
+                console.log('🎉 Ticket creado exitosamente:', message);
+                document.getElementById('ticket-result').innerHTML = 
+                    `<div class="alert alert-success">${message}</div>`;
+                resetForm('ticket-form');
+            } else {
+                console.error('❌ Error en la respuesta:', response.error);
+                document.getElementById('ticket-result').innerHTML = 
+                    `<div class="alert alert-danger">Error: ${response.error}</div>`;
+            }
+        }
+          function onTicketFailure(error) {
+            console.error('❌ Error en la llamada al servidor:', error);
+            document.getElementById('ticket-loading').style.display = 'none';
+            document.getElementById('ticket-result').innerHTML = 
+                `<div class="alert alert-danger">Error: ${error.message || error}</div>`;        }
+        
+        // ----- FUNCIONES PARA LEER TICKETS -----
+        function setupReadTicketForm() {
+            console.log('🔍 Configurando formulario de lectura de tickets...');
+            
+            const form = document.getElementById('read-ticket-form');
+            if (!form) {
+                console.error('❌ No se encontró el formulario read-ticket-form');
+                return;
+            }
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('🔍 Enviando búsqueda de ticket...');
+                
+                // Mostrar indicador de carga
+                document.getElementById('read-ticket-loading').style.display = 'block';
+                document.getElementById('read-ticket-result').innerHTML = '';
+                
+                // Recopilar datos del formulario
+                const searchData = {
+                    ticketId: document.getElementById('ticket-search-id').value,
+                    model: document.getElementById('ticket-search-model').value
+                };
+                
+                console.log('🔍 Datos de búsqueda:', searchData);
+                
+                // Llamar al backend
+                google.script.run
+                    .withSuccessHandler(onReadTicketSuccess)
+                    .withFailureHandler(onReadTicketFailure)
+                    .readOdooTicket(searchData);
+            });
+            
+            console.log('✅ Formulario de lectura de tickets configurado correctamente');
+        }
+        
+        function onReadTicketSuccess(response) {
+            console.log('✅ Respuesta de búsqueda exitosa:', response);
+            document.getElementById('read-ticket-loading').style.display = 'none';
+            
+            if (response.success) {
+                displayTicketInformation(response);
+            } else {
+                document.getElementById('read-ticket-result').innerHTML = 
+                    `<div class="alert alert-warning">
+                        <h4>🔍 Ticket no encontrado</h4>
+                        <p>${response.error}</p>
+                        ${response.modelsSearched ? '<p><strong>Modelos buscados:</strong> ' + response.modelsSearched.join(', ') + '</p>' : ''}
+                    </div>`;
+            }
+        }
+        
+        function onReadTicketFailure(error) {
+            console.error('❌ Error en búsqueda de ticket:', error);
+            document.getElementById('read-ticket-loading').style.display = 'none';
+            document.getElementById('read-ticket-result').innerHTML = 
+                `<div class="alert alert-danger">
+                    <h4>❌ Error de conexión</h4>
+                    <p>${error.message || error}</p>
+                </div>`;
+        }
+        
+        function displayTicketInformation(response) {
+            const ticket = response.ticket;
+            const model = response.model;
+            
+            console.log('📊 Mostrando información del ticket:', ticket);
+            
+            let html = `
+                <div class="alert alert-success">
+                    <h4>🎫 Ticket encontrado (${model})</h4>
+                    <p>Información del ticket ID: ${ticket.id}</p>
+                </div>
+                
+                <div class="card">
+                    <div class="ticket-info">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5>📋 Información Básica</h5>
+                                <table class="info-table">
+                                    <tr><td><strong>ID:</strong></td><td>${ticket.id}</td></tr>
+                                    <tr><td><strong>Título:</strong></td><td>${ticket.name || 'Sin título'}</td></tr>
+                                    <tr><td><strong>Modelo:</strong></td><td>${model}</td></tr>
+                                    <tr><td><strong>Prioridad:</strong></td><td>${getPriorityIcon(ticket.priority)} ${ticket.priority_name || ticket.priority || 'No definida'}</td></tr>
+                                    ${ticket.stage_id_name ? `<tr><td><strong>Estado:</strong></td><td>${ticket.stage_id_name}</td></tr>` : ''}
+                                    ${ticket.kanban_state ? `<tr><td><strong>Estado Kanban:</strong></td><td>${ticket.kanban_state}</td></tr>` : ''}
+                                </table>
+                            </div>
+                            
+                            <div class="col-6">
+                                <h5>👥 Asignación y Contacto</h5>
+                                <table class="info-table">
+                                    ${ticket.user_id_name ? `<tr><td><strong>Asignado a:</strong></td><td>${ticket.user_id_name}</td></tr>` : ''}
+                                    ${ticket.assigned_users && ticket.assigned_users.length > 0 ? `<tr><td><strong>Usuarios asignados:</strong></td><td>${ticket.user_ids_count} usuario(s)</td></tr>` : ''}
+                                    ${ticket.team_id_name ? `<tr><td><strong>Equipo:</strong></td><td>${ticket.team_id_name}</td></tr>` : ''}
+                                    ${ticket.project_id_name ? `<tr><td><strong>Proyecto:</strong></td><td>${ticket.project_id_name}</td></tr>` : ''}
+                                    ${ticket.partner_id_name ? `<tr><td><strong>Cliente:</strong></td><td>${ticket.partner_id_name}</td></tr>` : ''}
+                                    ${ticket.contact_name ? `<tr><td><strong>Contacto:</strong></td><td>${ticket.contact_name}</td></tr>` : ''}
+                                    ${ticket.partner_name ? `<tr><td><strong>Nombre cliente:</strong></td><td>${ticket.partner_name}</td></tr>` : ''}
+                                </table>
+                            </div>
+                        </div>
+                        
+                        ${ticket.description ? `
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>📝 Descripción</h5>
+                                <div class="description-box">
+                                    ${ticket.description.replace(/\n/g, '<br>')}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <h5>📧 Información de Contacto</h5>
+                                <table class="info-table">
+                                    ${ticket.partner_email ? `<tr><td><strong>Email:</strong></td><td><a href="mailto:${ticket.partner_email}">${ticket.partner_email}</a></td></tr>` : ''}
+                                    ${ticket.email_from ? `<tr><td><strong>Email origen:</strong></td><td><a href="mailto:${ticket.email_from}">${ticket.email_from}</a></td></tr>` : ''}
+                                    ${ticket.partner_phone ? `<tr><td><strong>Teléfono:</strong></td><td>${ticket.partner_phone}</td></tr>` : ''}
+                                    ${ticket.phone ? `<tr><td><strong>Teléfono:</strong></td><td>${ticket.phone}</td></tr>` : ''}
+                                    ${ticket.mobile ? `<tr><td><strong>Móvil:</strong></td><td>${ticket.mobile}</td></tr>` : ''}
+                                </table>
+                            </div>
+                            
+                            <div class="col-6">
+                                <h5>📅 Fechas</h5>
+                                <table class="info-table">
+                                    ${ticket.create_date_formatted ? `<tr><td><strong>Creado:</strong></td><td>${ticket.create_date_formatted}</td></tr>` : ''}
+                                    ${ticket.write_date_formatted ? `<tr><td><strong>Última modificación:</strong></td><td>${ticket.write_date_formatted}</td></tr>` : ''}
+                                    ${ticket.date_deadline_formatted ? `<tr><td><strong>Fecha límite:</strong></td><td>${ticket.date_deadline_formatted}</td></tr>` : ''}
+                                </table>
+                            </div>
+                        </div>
+                        
+                        ${model === 'crm.lead' && (ticket.probability !== undefined || ticket.expected_revenue !== undefined) ? `
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>💰 Información de Lead</h5>
+                                <table class="info-table">
+                                    ${ticket.probability !== undefined ? `<tr><td><strong>Probabilidad:</strong></td><td>${ticket.probability}%</td></tr>` : ''}
+                                    ${ticket.expected_revenue !== undefined ? `<tr><td><strong>Ingresos esperados:</strong></td><td>$${ticket.expected_revenue}</td></tr>` : ''}
+                                </table>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${ticket.ticket_type_id_name ? `
+                        <div class="row">
+                            <div class="col-12">
+                                <h5>🏷️ Categorización</h5>
+                                <table class="info-table">
+                                    <tr><td><strong>Tipo de ticket:</strong></td><td>${ticket.ticket_type_id_name}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('read-ticket-result').innerHTML = html;
+        }
+        
+        function getPriorityIcon(priority) {
+            switch (priority?.toString()) {
+                case '0': return '🔵'; // Baja
+                case '1': return '🟢'; // Normal
+                case '2': return '🟡'; // Alta
+                case '3': return '🔴'; // Urgente
+                default: return '⚪'; // Desconocida
+            }
+        }
+        
+        // ----- FUNCIONES PARA ARCHIVOS ADJUNTOS -----
+        let selectedFiles = [];
+        
+        function setupAttachmentHandling() {
+            console.log('📎 Configurando manejo de archivos adjuntos...');
+            
+            const fileInput = document.getElementById('ticket-attachments');
+            const previewContainer = document.getElementById('attachment-preview');
+            
+            fileInput.addEventListener('change', function(e) {
+                handleFileSelection(e.target.files);
+            });
+            
+            console.log('✅ Manejo de archivos adjuntos configurado');
+        }
+        
+        function handleFileSelection(files) {
+            console.log('📁 Archivos seleccionados:', files.length);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Validar tamaño del archivo (máx 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`El archivo "${file.name}" es demasiado grande. Máximo 10MB permitido.`);
+                    continue;
+                }
+                
+                // Validar tipo de archivo
+                const allowedTypes = [
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'text/plain',
+                    'image/jpeg',
+                    'image/jpg', 
+                    'image/png',
+                    'image/gif',
+                    'application/zip',
+                    'application/x-rar-compressed'
+                ];
+                
+                if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|txt|jpg|jpeg|png|gif|zip|rar)$/i)) {
+                    alert(`El archivo "${file.name}" no está en un formato soportado.`);
+                    continue;
+                }
+                
+                // Agregar archivo a la lista
+                const fileObj = {
+                    file: file,
+                    id: Date.now() + '_' + i,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type
+                };
+                
+                selectedFiles.push(fileObj);
+            }
+            
+            updateAttachmentPreview();
+            
+            // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
+            document.getElementById('ticket-attachments').value = '';
+        }
+        
+        function updateAttachmentPreview() {
+            const previewContainer = document.getElementById('attachment-preview');
+            
+            if (selectedFiles.length === 0) {
+                previewContainer.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            selectedFiles.forEach(fileObj => {
+                const icon = getFileIcon(fileObj.name, fileObj.type);
+                const sizeFormatted = formatFileSize(fileObj.size);
+                
+                html += `
+                    <div class="attachment-item" data-file-id="${fileObj.id}">
+                        <span class="attachment-icon">${icon}</span>
+                        <div class="attachment-info">
+                            <div class="attachment-name">${fileObj.name}</div>
+                            <div class="attachment-size">${sizeFormatted}</div>
+                        </div>
+                        <button type="button" class="attachment-remove" onclick="removeAttachment('${fileObj.id}')" title="Eliminar archivo">
+                            ❌
+                        </button>
+                    </div>
+                `;
+            });
+            
+            previewContainer.innerHTML = html;
+            console.log(`📎 ${selectedFiles.length} archivos adjuntos listos`);
+        }
+        
+        function removeAttachment(fileId) {
+            selectedFiles = selectedFiles.filter(f => f.id !== fileId);
+            updateAttachmentPreview();
+            console.log('🗑️ Archivo eliminado, archivos restantes:', selectedFiles.length);
+        }
+        
+        function getFileIcon(fileName, fileType) {
+            const extension = fileName.split('.').pop().toLowerCase();
+            
+            switch (extension) {
+                case 'pdf': return '📄';
+                case 'doc':
+                case 'docx': return '📝';
+                case 'txt': return '📃';
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'gif': return '🖼️';
+                case 'zip':
+                case 'rar': return '📦';
+                default: return '📄';
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function prepareAttachmentsForUpload() {
+            return new Promise((resolve, reject) => {
+                if (selectedFiles.length === 0) {
+                    resolve([]);
+                    return;
+                }
+                
+                console.log('📤 Preparando archivos para subida...');
+                const attachments = [];
+                let processedCount = 0;
+                
+                selectedFiles.forEach(fileObj => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const base64Data = e.target.result.split(',')[1]; // Remover el prefijo data:...;base64,
+                        
+                        attachments.push({
+                            name: fileObj.name,
+                            data: base64Data,
+                            mimetype: fileObj.type || 'application/octet-stream'
+                        });
+                        
+                        processedCount++;
+                        if (processedCount === selectedFiles.length) {
+                            console.log(`✅ ${attachments.length} archivos preparados para subida`);
+                            resolve(attachments);
+                        }
+                    };
+                    
+                    reader.onerror = function() {
+                        console.error('❌ Error leyendo archivo:', fileObj.name);
+                        reject(new Error(`Error leyendo el archivo: ${fileObj.name}`));
+                    };
+                    
+                    reader.readAsDataURL(fileObj.file);
+                });
+            });
         }
         
         // ----- FUNCIONES PARA DIAGNÓSTICO -----
@@ -1122,17 +1956,39 @@
                 .withFailureHandler(function(error) {
                     document.getElementById('log-container').innerHTML = '<p>Error al limpiar logs: ' + error + '</p>';
                 })
-                .clearLogs();
-        }
+                .clearLogs();        }
         
         // ----- FUNCIONES COMUNES -----
+        
         function resetForm(formId) {
-            document.getElementById(formId).reset();
+            console.log('🧹 Limpiando formulario:', formId);
+            const form = document.getElementById(formId);
+            if (form) {
+                form.reset();
+                
+                // Limpiar archivos adjuntos seleccionados
+                if (formId === 'ticketForm') {
+                    selectedFiles = [];
+                    updateAttachmentPreview();
+                    console.log('🗂️ Archivos adjuntos limpiados');
+                }
+                
+                console.log('✅ Formulario limpiado:', formId);
+            } else {
+                console.error('❌ No se encontró el formulario:', formId);
+            }
         }
         
         function formatTimestamp(timestamp) {
             const date = new Date(timestamp);
-            return date.toLocaleTimeString() + '.' + String(date.getMilliseconds()).padStart(3, '0');
+            return date.toLocaleString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
         
         function showDebugLoading(show) {
@@ -1140,8 +1996,8 @@
         }
         
         function hideDebugResults() {
-            document.getElementById('connection-result').style.display = 'none';
-            document.getElementById('connection-result').innerHTML = '';
+            const element = document.getElementById('connection-result');
+            element.style.display = 'none';
         }
         
         function showDebugResult(type, message) {

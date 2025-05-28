@@ -1,10 +1,10 @@
 function getLeadFields() {
-  const odooUrl = "https://dye.quilsoft.com";
+  const odooUrl = "https://test-dye.quilsoft.com";
   
   // Credenciales de autenticación
-  const db = "dye_prod";
+  const db = "test_dye_0201";
   const login = "maused@dyesa.com";
-  const password = "967ce27624f6e6bfdf1b674efcbc2fda5603796e";
+  const password = "199c1d6571746ca0d8ee2fcac0a913d8e91e27e0";
   
   
   const authEndpoint = "/web/session/authenticate";
@@ -886,7 +886,7 @@ function addOdooTask(taskData) {
   }
 }
 
-// Función para crear un nuevo lead en Odoo
+// Función para crear un nuevo lead in Odoo
 function addOdooLead(leadData) {
   try {
     logInfo("Iniciando creación de lead", leadData);
@@ -938,6 +938,399 @@ function addOdooLead(leadData) {
   }
 }
 
+// Función para crear un nuevo ticket en Odoo
+function addOdooTicket(ticketData) {
+  try {
+    logInfo("Iniciando creación de ticket", ticketData);
+    
+    const config = getOdooConfig();
+    if (!config.url || !config.db || !config.username || !config.password) {
+      throw new Error("Configuración de Odoo incompleta");
+    }
+    
+    // Obtener credenciales reales (no la versión sanitizada que devuelve getOdooConfig)
+    const props = PropertiesService.getScriptProperties();
+    const password = props.getProperty('ODOO_PASSWORD');
+      // Autenticar con Odoo
+    const uid = xmlrpcLogin(config.url, config.db, config.username, password);
+    logInfo("Autenticación exitosa", { uid: uid });
+
+    // Buscar cliente por nombre si se proporciona
+    let partnerId = null;
+    let clienteInfo = '';
+    if (ticketData.partner_name && ticketData.partner_name.trim() !== '') {
+      try {
+        const partners = xmlrpcExecute(
+          config.url,
+          config.db,
+          uid,
+          password,
+          'res.partner',
+          'search_read',
+          [
+            [['name', 'ilike', ticketData.partner_name.trim()]],
+            ['id', 'name', 'email', 'phone']
+          ]
+        );
+        
+        if (partners && partners.length > 0) {
+          partnerId = partners[0].id;
+          logInfo("Cliente encontrado", { partner_id: partnerId, partner_name: partners[0].name });
+          clienteInfo = `Cliente asociado: ${partners[0].name} (ID: ${partnerId})`;
+        } else {
+          logInfo("Cliente no encontrado, se agregará a detalles", { partner_name: ticketData.partner_name });
+          clienteInfo = `Cliente informado: ${ticketData.partner_name} (no existe en sistema)`;
+        }
+      } catch (partnerError) {
+        logWarning("Error buscando cliente", { error: partnerError.toString() });
+        clienteInfo = `Cliente informado: ${ticketData.partner_name} (error en búsqueda)`;
+      }
+    }
+
+    // Buscar tipo de ticket "IngresoReparacionesDJI"
+    let ticketTypeId = null;
+    try {
+      const ticketTypes = xmlrpcExecute(
+        config.url,
+        config.db,
+        uid,
+        password,
+        'helpdesk.ticket.type',
+        'search_read',
+        [
+          [['name', '=', 'IngresoReparacionesDJI']],
+          ['id', 'name']
+        ]
+      );
+      
+      if (ticketTypes && ticketTypes.length > 0) {
+        ticketTypeId = ticketTypes[0].id;
+        logInfo("Tipo de ticket encontrado", { ticket_type_id: ticketTypeId });
+      } else {
+        logWarning("Tipo de ticket 'IngresoReparacionesDJI' no encontrado");
+      }
+    } catch (typeError) {
+      logWarning("Error buscando tipo de ticket", { error: typeError.toString() });
+    }
+
+    // Buscar equipo "Team GarantíasDJI"
+    let teamId = null;
+    try {
+      const teams = xmlrpcExecute(
+        config.url,
+        config.db,
+        uid,
+        password,
+        'helpdesk.team',
+        'search_read',
+        [
+          [['name', '=', 'Team GarantíasDJI']],
+          ['id', 'name']
+        ]
+      );
+      
+      if (teams && teams.length > 0) {
+        teamId = teams[0].id;
+        logInfo("Equipo encontrado", { team_id: teamId });
+      } else {
+        logWarning("Equipo 'Team GarantíasDJI' no encontrado");
+      }
+    } catch (teamError) {
+      logWarning("Error buscando equipo", { error: teamError.toString() });
+    }
+
+    // Formatear descripción en HTML
+    let htmlDescription = ticketData.description;
+    if (htmlDescription) {
+      // Convertir URLs en enlaces HTML
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      htmlDescription = htmlDescription.replace(urlRegex, '<a href="$1" target="_blank">$1</a>');
+      
+      // Convertir saltos de línea a <br>
+      htmlDescription = htmlDescription.replace(/\n/g, '<br>');
+      
+      // Agregar información del cliente si existe
+      if (clienteInfo) {
+        htmlDescription = `<p><strong>${clienteInfo}</strong></p><hr>${htmlDescription}`;
+      }
+    }
+
+    // Preparar datos para el ticket
+    const odooTicketData = {
+      'name': ticketData.name,                    // Título del ticket
+      'description': htmlDescription,             // Descripción en HTML
+      'priority': ticketData.priority || '1',    // Prioridad (0=Baja, 1=Normal, 2=Alta, 3=Urgente)
+    };
+
+    // Asignar IDs encontrados
+    if (partnerId) {
+      odooTicketData['partner_id'] = partnerId;
+    }
+    
+    if (ticketTypeId) {
+      odooTicketData['ticket_type_id'] = ticketTypeId;
+    }
+      if (teamId) {
+      odooTicketData['team_id'] = teamId;
+    }
+
+    // Agregar usuario técnico si se proporciona
+    if (ticketData.user_id && ticketData.user_id !== '') {
+      odooTicketData['user_id'] = parseInt(ticketData.user_id);
+    }
+
+    // Agregar email y teléfono del cliente si se proporcionan
+    if (ticketData.partner_email && ticketData.partner_email.trim() !== '') {
+      odooTicketData['partner_email'] = ticketData.partner_email.trim();
+    }
+    
+    if (ticketData.partner_phone && ticketData.partner_phone.trim() !== '') {
+      odooTicketData['partner_phone'] = ticketData.partner_phone.trim();
+    }
+
+    // Intentar crear el ticket usando diferentes modelos posibles
+    let ticketId;
+    let modelUsed;
+    
+    // Primero intentar con helpdesk.ticket (modelo más común para tickets)
+    try {
+      logInfo("Intentando crear ticket con modelo helpdesk.ticket", { data: odooTicketData });
+      
+      ticketId = xmlrpcExecute(
+        config.url, 
+        config.db, 
+        uid, 
+        password, 
+        'helpdesk.ticket', 
+        'create', 
+        [odooTicketData]
+      );
+      modelUsed = 'helpdesk.ticket';
+      logInfo("Ticket creado exitosamente con modelo helpdesk.ticket", { ticket_id: ticketId });
+    } catch (helpdeskError) {
+      logError("Error detallado con modelo helpdesk.ticket", { 
+        error: helpdeskError.toString(),
+        data_sent: odooTicketData
+      });
+      
+      // Si falla por el stage_id, intentar sin él
+      if (helpdeskError.toString().includes('stage_id') || helpdeskError.toString().includes('field')) {
+        try {
+          logInfo("Reintentando helpdesk.ticket sin stage_id");
+          const ticketDataWithoutStage = { ...odooTicketData };
+          delete ticketDataWithoutStage.stage_id;
+          
+          ticketId = xmlrpcExecute(
+            config.url, 
+            config.db, 
+            uid, 
+            password, 
+            'helpdesk.ticket', 
+            'create', 
+            [ticketDataWithoutStage]
+          );
+          modelUsed = 'helpdesk.ticket';
+          logInfo("Ticket creado con helpdesk.ticket sin stage_id", { ticket_id: ticketId });
+        } catch (retryError) {
+          logWarning("Error en reintento con helpdesk.ticket, intentando project.task", { error: retryError.toString() });
+          throw retryError; // Pasar al siguiente fallback
+        }
+      } else {
+        logWarning("Error con modelo helpdesk.ticket, intentando project.task", { error: helpdeskError.toString() });
+        throw helpdeskError; // Pasar al siguiente fallback
+      }
+      
+      // Si falla, intentar con project.task (algunas instalaciones usan tareas como tickets)
+      try {
+        // Para project.task necesitamos un project_id, usaremos uno por defecto o crearemos uno
+        const projectTaskData = {
+          ...odooTicketData,
+          'project_id': 1  // Asumimos que existe un proyecto con ID 1, esto debería ser configurable
+        };
+        
+        ticketId = xmlrpcExecute(
+          config.url, 
+          config.db, 
+          uid, 
+          password, 
+          'project.task', 
+          'create', 
+          [projectTaskData]
+        );
+        modelUsed = 'project.task';
+        logInfo("Ticket creado con modelo project.task", { ticket_id: ticketId });
+      } catch (taskError) {
+        logWarning("Error con modelo project.task, intentando crm.lead", { error: taskError.toString() });
+        
+        // Como último recurso, crear como lead
+        try {
+          const leadData = {
+            'name': ticketData.name,
+            'description': odooTicketData['description'],
+            'contact_name': ticketData.partner_name || '',
+            'email_from': ticketData.partner_email || '',
+            'user_id': ticketData.user_id ? parseInt(ticketData.user_id) : null
+          };
+          
+          ticketId = xmlrpcExecute(
+            config.url, 
+            config.db, 
+            uid, 
+            password, 
+            'crm.lead', 
+            'create', 
+            [leadData]
+          );
+          modelUsed = 'crm.lead';
+          logInfo("Ticket creado como lead en crm.lead", { ticket_id: ticketId });
+        } catch (leadError) {
+          logError("Error en todos los modelos intentados", { 
+            helpdeskError: helpdeskError.toString(),
+            taskError: taskError.toString(),
+            leadError: leadError.toString()
+          });
+          throw new Error("No se pudo crear el ticket en ningún modelo disponible. Verifique que el módulo de helpdesk esté instalado en Odoo.");
+        }
+      }
+    }
+      logInfo("Ticket creado exitosamente", { 
+      ticket_id: ticketId, 
+      model_used: modelUsed 
+    });
+      // Procesar archivos adjuntos si existen
+    let attachmentResults = [];
+    if (ticketData.attachments && ticketData.attachments.length > 0) {
+      logInfo("Procesando archivos adjuntos", { count: ticketData.attachments.length });
+      
+      try {
+        attachmentResults = processTicketAttachments(
+          config.url, 
+          config.db, 
+          uid, 
+          password, 
+          ticketId, 
+          modelUsed, 
+          ticketData.attachments
+        );
+        logInfo("Adjuntos procesados exitosamente", { 
+          total: ticketData.attachments.length,
+          successful: attachmentResults.filter(r => r.success).length
+        });
+      } catch (attachmentError) {
+        logWarning("Error procesando algunos adjuntos", { error: attachmentError.toString() });
+        // No fallar el ticket por errores en adjuntos
+      }
+    }
+    
+    return { 
+      success: true, 
+      ticket_id: ticketId, 
+      model: modelUsed,
+      message: `Ticket creado exitosamente (modelo: ${modelUsed})`,
+      attachments: attachmentResults
+    };
+    
+  } catch (error) {
+    logError("Error al crear ticket", { error: error.toString() });
+    return { success: false, error: error.message || error.toString() };
+  }
+}
+
+// Función para procesar y subir archivos adjuntos a Odoo
+function processTicketAttachments(odooUrl, db, uid, password, ticketId, modelUsed, attachments) {
+  const results = [];
+  
+  for (let i = 0; i < attachments.length; i++) {
+    const attachment = attachments[i];
+    
+    try {
+      logInfo(`Procesando adjunto ${i + 1}/${attachments.length}`, { 
+        filename: attachment.name,
+        size: attachment.size 
+      });
+      
+      // Preparar datos del adjunto para Odoo
+      const attachmentData = {
+        'name': attachment.name,
+        'datas': attachment.content, // contenido en base64
+        'res_model': modelUsed,
+        'res_id': ticketId,
+        'type': 'binary',
+        'mimetype': attachment.type || 'application/octet-stream'
+      };
+      
+      // Crear el adjunto en Odoo usando el modelo ir.attachment
+      const attachmentId = xmlrpcExecute(
+        odooUrl,
+        db,
+        uid,
+        password,
+        'ir.attachment',
+        'create',
+        [attachmentData]
+      );
+      
+      logInfo(`Adjunto creado exitosamente`, { 
+        filename: attachment.name,
+        attachment_id: attachmentId 
+      });
+      
+      results.push({
+        success: true,
+        filename: attachment.name,
+        attachment_id: attachmentId
+      });
+      
+    } catch (error) {
+      logError(`Error creando adjunto ${attachment.name}`, { error: error.toString() });
+      results.push({
+        success: false,
+        filename: attachment.name,
+        error: error.message || error.toString()
+      });
+    }
+  }
+  
+  return results;
+}
+
+// Función para obtener usuarios de Odoo para formularios
+function getOdooUsersForForm() {
+  try {
+    logInfo("Obteniendo usuarios de Odoo para formulario");
+    
+    const config = getOdooConfig();
+    if (!config.url || !config.db || !config.username || !config.password) {
+      throw new Error("Configuración de Odoo incompleta");
+    }
+    
+    const props = PropertiesService.getScriptProperties();
+    const password = props.getProperty('ODOO_PASSWORD');
+    
+    const uid = xmlrpcLogin(config.url, config.db, config.username, password);
+    
+    // Buscar usuarios activos
+    const users = xmlrpcExecute(
+      config.url,
+      config.db,
+      uid,
+      password,
+      'res.users',
+      'search_read',
+      [
+        [['active', '=', true], ['share', '=', false]], // Solo usuarios internos activos
+        ['id', 'name', 'login']
+      ]
+    );
+    
+    logInfo("Usuarios obtenidos exitosamente", { count: users.length });
+    return { success: true, users: users };
+    
+  } catch (error) {
+    logError("Error al obtener usuarios", { error: error.toString() });
+    return { success: false, error: error.message || error.toString() };  }
+}
+
 // Función principal para manejar solicitudes HTTP GET
 function doGet(e) {
   try {
@@ -960,5 +1353,220 @@ function doGet(e) {
   } catch (error) {
     logError("Error en doGet", { error: error.toString() });
     return HtmlService.createHtmlOutput('<h1>Error</h1><p>' + error.toString() + '</p>');
+  }
+}
+
+// Función para buscar y leer tickets en Odoo
+function readOdooTicket(searchData) {
+  try {
+    logInfo("Iniciando búsqueda de ticket", searchData);
+    
+    const config = getOdooConfig();
+    if (!config.url || !config.db || !config.username || !config.password) {
+      throw new Error("Configuración de Odoo incompleta");
+    }
+
+    // Obtener credenciales reales (no la versión sanitizada que devuelve getOdooConfig)
+    const props = PropertiesService.getScriptProperties();
+    const password = props.getProperty('ODOO_PASSWORD');
+
+    // Autenticar con Odoo
+    const uid = xmlrpcLogin(config.url, config.db, config.username, password);
+    logInfo("Autenticación exitosa", { uid: uid });
+
+    const ticketId = parseInt(searchData.ticketId);
+    if (!ticketId || ticketId <= 0) {
+      throw new Error("ID de ticket inválido");
+    }
+
+    let foundTicket = null;
+    let modelUsed = null;
+    const searchResults = [];
+
+    // Definir los modelos a intentar según la selección del usuario
+    let modelsToTry = [];
+    if (searchData.model === 'auto') {
+      // Detección automática: intentar todos los modelos
+      modelsToTry = ['helpdesk.ticket', 'project.task', 'crm.lead'];
+    } else {
+      // Usar el modelo específico seleccionado
+      modelsToTry = [searchData.model];
+    }
+
+    // Buscar en cada modelo
+    for (const model of modelsToTry) {
+      try {
+        logInfo(`Buscando ticket en modelo ${model}`, { ticket_id: ticketId });
+        
+        // Definir campos a obtener según el modelo
+        let fieldsToGet = [];
+        switch (model) {
+          case 'helpdesk.ticket':
+            fieldsToGet = [
+              'id', 'name', 'description', 'priority', 'stage_id', 'user_id', 
+              'team_id', 'partner_id', 'ticket_type_id', 'create_date', 
+              'write_date', 'partner_name', 'partner_email', 'partner_phone'
+            ];
+            break;
+          case 'project.task':
+            fieldsToGet = [
+              'id', 'name', 'description', 'priority', 'stage_id', 'user_ids',
+              'project_id', 'partner_id', 'create_date', 'write_date',
+              'date_deadline', 'kanban_state'
+            ];
+            break;
+          case 'crm.lead':
+            fieldsToGet = [
+              'id', 'name', 'description', 'priority', 'stage_id', 'user_id',
+              'partner_id', 'contact_name', 'email_from', 'phone', 'mobile',
+              'create_date', 'write_date', 'probability', 'expected_revenue'
+            ];
+            break;
+        }
+
+        // Buscar el ticket por ID
+        const tickets = xmlrpcExecute(
+          config.url,
+          config.db,
+          uid,
+          password,
+          model,
+          'search_read',
+          [
+            [['id', '=', ticketId]], // Filtro: buscar por ID específico
+            fieldsToGet
+          ]
+        );
+
+        if (tickets && tickets.length > 0) {
+          foundTicket = tickets[0];
+          modelUsed = model;
+          
+          logInfo(`Ticket encontrado en modelo ${model}`, { 
+            ticket_id: foundTicket.id,
+            name: foundTicket.name 
+          });
+          
+          // Si encontramos el ticket, salir del bucle
+          break;
+        } else {
+          logInfo(`Ticket no encontrado en modelo ${model}`);
+          searchResults.push({
+            model: model,
+            found: false,
+            message: `No se encontró ticket con ID ${ticketId} en ${model}`
+          });
+        }
+
+      } catch (modelError) {
+        logWarning(`Error buscando en modelo ${model}`, { error: modelError.toString() });
+        searchResults.push({
+          model: model,
+          found: false,
+          error: modelError.message || modelError.toString()
+        });
+      }
+    }    // Si encontramos un ticket, procesarlo y formatear la respuesta
+    if (foundTicket) {
+      // Procesar campos relacionales (Many2one) para obtener nombres legibles
+      const processedTicket = processTicketFields(config.url, config.db, uid, password, foundTicket, modelUsed);
+      
+      return {
+        success: true,
+        ticket: processedTicket,
+        model: modelUsed,
+        message: `Ticket encontrado en modelo ${modelUsed}`,
+        searchResults: searchResults
+      };
+    } else {
+      return {
+        success: false,
+        error: `No se encontró ningún ticket con ID ${ticketId} en ningún modelo`,
+        searchResults: searchResults,
+        modelsSearched: modelsToTry
+      };
+    }
+
+  } catch (error) {
+    logError("Error al buscar ticket", { error: error.toString() });
+    return { success: false, error: error.message || error.toString() };
+  }
+}
+
+// Función auxiliar para procesar campos relacionales del ticket
+function processTicketFields(odooUrl, db, uid, password, ticket, model) {
+  try {
+    logInfo("Procesando campos relacionales del ticket", { ticket_id: ticket.id, model: model });
+    
+    // Crear una copia del ticket para no modificar el original
+    const processedTicket = { ...ticket };
+    
+    // Procesar campos Many2one comunes
+    const many2oneFields = ['stage_id', 'user_id', 'partner_id', 'team_id', 'ticket_type_id', 'project_id'];
+    
+    many2oneFields.forEach(field => {
+      if (processedTicket[field] && Array.isArray(processedTicket[field]) && processedTicket[field].length > 1) {
+        // El campo Many2one viene como [id, "nombre"]
+        processedTicket[field + '_name'] = processedTicket[field][1];
+        processedTicket[field] = processedTicket[field][0];
+      }
+    });
+    
+    // Procesar user_ids para project.task (Many2many)
+    if (model === 'project.task' && processedTicket.user_ids && Array.isArray(processedTicket.user_ids)) {
+      processedTicket.assigned_users = processedTicket.user_ids;
+      processedTicket.user_ids_count = processedTicket.user_ids.length;
+    }
+    
+    // Formatear fechas
+    if (processedTicket.create_date) {
+      processedTicket.create_date_formatted = formatOdooDate(processedTicket.create_date);
+    }
+    if (processedTicket.write_date) {
+      processedTicket.write_date_formatted = formatOdooDate(processedTicket.write_date);
+    }
+    if (processedTicket.date_deadline) {
+      processedTicket.date_deadline_formatted = formatOdooDate(processedTicket.date_deadline);
+    }
+    
+    // Formatear prioridad
+    if (processedTicket.priority !== undefined) {
+      const priorityMap = {
+        '0': 'Baja',
+        '1': 'Normal', 
+        '2': 'Alta',
+        '3': 'Urgente'
+      };
+      processedTicket.priority_name = priorityMap[processedTicket.priority.toString()] || 'Desconocida';
+    }
+    
+    logInfo("Campos del ticket procesados exitosamente");
+    return processedTicket;
+    
+  } catch (error) {
+    logWarning("Error procesando campos relacionales", { error: error.toString() });
+    return ticket; // Devolver el ticket original si hay error
+  }
+}
+
+// Función auxiliar para formatear fechas de Odoo
+function formatOdooDate(odooDate) {
+  try {
+    if (!odooDate) return '';
+    
+    // Las fechas de Odoo vienen en formato UTC: "2024-01-15 10:30:00"
+    const date = new Date(odooDate.replace(' ', 'T') + 'Z'); // Agregar Z para UTC
+    
+    return date.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Argentina/Buenos_Aires' // Ajustar zona horaria local
+    });
+  } catch (error) {
+    logWarning("Error formateando fecha", { date: odooDate, error: error.toString() });
+    return odooDate; // Devolver fecha original si hay error
   }
 }
