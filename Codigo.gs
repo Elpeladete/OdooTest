@@ -1072,11 +1072,13 @@ function addOdooTicket(ticketData) {
     }
       if (teamId) {
       odooTicketData['team_id'] = teamId;
-    }
-
-    // Agregar usuario técnico si se proporciona
+    }    // Agregar usuario técnico - Asignar automáticamente a Brandon Depetris si no se especifica otro
     if (ticketData.user_id && ticketData.user_id !== '') {
       odooTicketData['user_id'] = parseInt(ticketData.user_id);
+    } else {
+      // Asignar automáticamente a Brandon Depetris (ID=14)
+      odooTicketData['user_id'] = 14;
+      logInfo("Ticket asignado automáticamente a Brandon Depetris (UID=14)");
     }
 
     // Agregar email y teléfono del cliente si se proporcionan
@@ -1325,10 +1327,128 @@ function getOdooUsersForForm() {
     
     logInfo("Usuarios obtenidos exitosamente", { count: users.length });
     return { success: true, users: users };
-    
-  } catch (error) {
+      } catch (error) {
     logError("Error al obtener usuarios", { error: error.toString() });
     return { success: false, error: error.message || error.toString() };  }
+}
+
+// Función para formatear fechas de Odoo
+function formatOdooDate(dateString) {
+  if (!dateString) {
+    return null;
+  }
+  try {
+    // Odoo fechas pueden venir en formato 'YYYY-MM-DD HH:MM:SS' o 'YYYY-MM-DD'
+    // El constructor de Date() de JavaScript usualmente maneja bien estos formatos.
+    const dateObj = new Date(dateString);
+    if (isNaN(dateObj.getTime())) {
+      // Si la fecha no es válida, devolver el string original o null
+      logWarning("Fecha inválida para formatOdooDate", { dateString: dateString });
+      return dateString; 
+    }
+    // Formatear a 'YYYY-MM-DD HH:MM:SS' usando la zona horaria del script
+    return Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+  } catch (error) {
+    logError("Error formateando fecha en formatOdooDate", { dateString: dateString, error: error.toString() });
+    return dateString; // Devolver original en caso de error inesperado
+  }
+}
+
+// Función para obtener usuarios con información comercial completa
+function getOdooUsersWithCommercialInfo() {
+  try {
+    logInfo("Obteniendo usuarios con información comercial completa");
+    
+    const config = getOdooConfig();
+    if (!config.url || !config.db || !config.username || !config.password) {
+      throw new Error("Configuración de Odoo incompleta");
+    }
+    
+    const props = PropertiesService.getScriptProperties();
+    const password = props.getProperty('ODOO_PASSWORD');
+    
+    const uid = xmlrpcLogin(config.url, config.db, config.username, password);
+    
+    // Buscar todos los usuarios con información detallada
+    const users = xmlrpcExecute(
+      config.url,
+      config.db,
+      uid,
+      password,
+      'res.users',
+      'search_read',
+      [
+        [], // Obtener todos los usuarios (activos e inactivos)
+        [
+          'id', 
+          'name', 
+          'login', 
+          'email',
+          'active',
+          'login_date',
+          'groups_id',
+          'category_id'
+        ]
+      ]
+    );
+    
+    // Procesar usuarios para obtener información del grupo comercial
+    const processedUsers = users.map(user => {
+      let commercialGroup = 'Sin grupo';
+      
+      // Obtener información de grupos si existe
+      if (user.groups_id && user.groups_id.length > 0) {
+        try {
+          // Buscar grupos específicamente comerciales
+          const groups = xmlrpcExecute(
+            config.url,
+            config.db,
+            uid,
+            password,
+            'res.groups',
+            'search_read',
+            [
+              [['id', 'in', user.groups_id]],
+              ['name', 'category_id']
+            ]
+          );
+          
+          // Buscar grupos comerciales (Sales, CRM, etc.)
+          const commercialGroups = groups.filter(group => 
+            group.name && (
+              group.name.toLowerCase().includes('sales') ||
+              group.name.toLowerCase().includes('crm') ||
+              group.name.toLowerCase().includes('ventas') ||
+              group.name.toLowerCase().includes('comercial')
+            )
+          );
+          
+          if (commercialGroups.length > 0) {
+            commercialGroup = commercialGroups[0].name;
+          }
+        } catch (groupError) {
+          logWarning("Error obteniendo grupos del usuario", { userId: user.id, error: groupError.toString() });
+        }
+      }
+      
+      return {
+        id: user.id,
+        name: user.name,
+        login: user.login,
+        email: user.email,
+        active: user.active,
+        login_date: user.login_date ? formatOdooDate(user.login_date) : null,
+        commercial_group: commercialGroup
+      };
+    });
+    
+    logInfo("Usuarios con información comercial obtenidos exitosamente", { count: processedUsers.length });
+    return { success: true, users: processedUsers };
+    
+  } catch (error) {
+    logError("Error al obtener usuarios con información comercial", { error: error.toString() });
+    return { success: false, error: error.message || error.toString() };
+  }
 }
 
 // Función principal para manejar solicitudes HTTP GET
@@ -1493,80 +1613,594 @@ function readOdooTicket(searchData) {
   }
 }
 
-// Función auxiliar para procesar campos relacionales del ticket
-function processTicketFields(odooUrl, db, uid, password, ticket, model) {
-  try {
-    logInfo("Procesando campos relacionales del ticket", { ticket_id: ticket.id, model: model });
-    
-    // Crear una copia del ticket para no modificar el original
-    const processedTicket = { ...ticket };
-    
-    // Procesar campos Many2one comunes
-    const many2oneFields = ['stage_id', 'user_id', 'partner_id', 'team_id', 'ticket_type_id', 'project_id'];
-    
-    many2oneFields.forEach(field => {
-      if (processedTicket[field] && Array.isArray(processedTicket[field]) && processedTicket[field].length > 1) {
-        // El campo Many2one viene como [id, "nombre"]
-        processedTicket[field + '_name'] = processedTicket[field][1];
-        processedTicket[field] = processedTicket[field][0];
+// Function to process ticket fields, resolve relational names, and format dates
+function processTicketFields(odooUrl, db, uid, password, ticket, modelUsed) {
+  logInfo(`Processing ticket fields for ID: ${ticket.id}, Model: ${modelUsed}`);
+  let processed = { ...ticket }; // Clone the ticket object
+
+  // Known relational models and their name fields (can be expanded)
+  const knownRelationalModels = {
+    'user_id': { model: 'res.users', nameField: 'name' },
+    'team_id': { model: 'helpdesk.team', nameField: 'name' },
+    'partner_id': { model: 'res.partner', nameField: 'name' },
+    'stage_id': { model: 'helpdesk.stage', nameField: 'name' }, // Common for helpdesk.ticket
+    // Example for project.task's stage_id if it uses a different model like project.task.type
+    // 'stage_id_project_task': { model: 'project.task.type', nameField: 'name' }, 
+    'ticket_type_id': { model: 'helpdesk.ticket.type', nameField: 'name' },
+    'project_id': { model: 'project.project', nameField: 'name' }, // For project.task
+    // Add more known relational fields and their corresponding models/name fields here
+    // e.g. 'x_custom_user_id': { model: 'res.users', nameField: 'name' },
+  };
+
+  for (const field in processed) {
+    if (processed.hasOwnProperty(field)) {
+      let value = processed[field];
+
+      // 1. Handle Relational Fields (Many2one, Many2many, One2many)
+      if (value && typeof value === 'object' && Array.isArray(value) && value.length > 0) {
+        if (value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'string') {
+          // Standard Many2one: [ID, "DisplayName"]
+          processed[field + '_id'] = value[0];
+          processed[field] = value[1];
+          processed[field + '_display_name'] = value[1];
+        } else if (value.every(item => typeof item === 'number')) {
+          // Array of IDs (Many2many/One2many) or a Many2one that only returned an ID [id]
+          if (value.length === 1 && knownRelationalModels[field]) {
+             const id = value[0];
+             const modelInfo = knownRelationalModels[field];
+             try {
+                const relatedRecord = xmlrpcExecute(odooUrl, db, uid, password, modelInfo.model, 'read', [[id], [modelInfo.nameField]]);
+                if (relatedRecord && relatedRecord.length > 0 && relatedRecord[0][modelInfo.nameField] !== undefined) {
+                  processed[field + '_id'] = id;
+                  processed[field] = relatedRecord[0][modelInfo.nameField];
+                  processed[field + '_display_name'] = relatedRecord[0][modelInfo.nameField];
+                } else {
+                  processed[field + '_id'] = id;
+                  processed[field] = `ID: ${id} (Name not found for ${modelInfo.model})`;
+                  processed[field + '_display_name'] = `ID: ${id} (Name not found for ${modelInfo.model})`;
+                }
+             } catch (e) {
+                logWarning(`Could not resolve name for field ${field} (ID: ${id}), model ${modelInfo.model}`, e);
+                processed[field + '_id'] = id;
+                processed[field] = `ID: ${id} (Error resolving name for ${modelInfo.model})`;
+                processed[field + '_display_name'] = `ID: ${id} (Error resolving name for ${modelInfo.model})`;
+             }
+          } else {
+             processed[field + '_ids'] = value; // Store as array of IDs, e.g., tag_ids: [1, 2, 3]
+             // For display, the frontend might need to fetch names or show IDs.
+             // To make it more consistent, we can try to create a string representation if it's a known x2many field.
+             // This part can be enhanced based on how x2many fields should be displayed/edited.
+             processed[field] = `IDs: ${value.join(', ')}`; // Simple display for x2many IDs
+          }
+        }
+      } else if (typeof value === 'number' && knownRelationalModels[field]) {
+        const id = value;
+        const modelInfo = knownRelationalModels[field];
+        // Special handling for stage_id in project.task, as it might use 'project.task.type'
+        let actualModelInfo = modelInfo;
+        if (field === 'stage_id' && modelUsed === 'project.task') {
+            // If you have a specific entry for project.task stages, use it.
+            // For example, if you added 'stage_id_project_task': { model: 'project.task.type', nameField: 'name' }
+            // actualModelInfo = knownRelationalModels['stage_id_project_task'] || modelInfo;
+            // For now, we assume 'project.task.type' is the stage model for 'project.task'
+            // This should be configured in knownRelationalModels if different from 'helpdesk.stage'
+             actualModelInfo = { model: 'project.task.type', nameField: 'name' }; 
+        }
+
+        try {
+          const relatedRecord = xmlrpcExecute(odooUrl, db, uid, password, actualModelInfo.model, 'read', [[id], [actualModelInfo.nameField]]);
+          if (relatedRecord && relatedRecord.length > 0 && relatedRecord[0][actualModelInfo.nameField] !== undefined) {
+            processed[field + '_id'] = id;
+            processed[field] = relatedRecord[0][actualModelInfo.nameField];
+            processed[field + '_display_name'] = relatedRecord[0][actualModelInfo.nameField];
+          } else {
+            processed[field + '_id'] = id;
+            processed[field] = `ID: ${id} (Name not found for ${actualModelInfo.model})`;
+            processed[field + '_display_name'] = `ID: ${id} (Name not found for ${actualModelInfo.model})`;
+          }
+        } catch (e) {
+          logWarning(`Could not resolve name for field ${field} (ID: ${id}), model ${actualModelInfo.model}`, e);
+          processed[field + '_id'] = id;
+          processed[field] = `ID: ${id} (Error resolving name for ${actualModelInfo.model})`;
+          processed[field + '_display_name'] = `ID: ${id} (Error resolving name for ${actualModelInfo.model})`;
+        }
       }
-    });
-    
-    // Procesar user_ids para project.task (Many2many)
-    if (model === 'project.task' && processedTicket.user_ids && Array.isArray(processedTicket.user_ids)) {
-      processedTicket.assigned_users = processedTicket.user_ids;
-      processedTicket.user_ids_count = processedTicket.user_ids.length;
+
+      // 2. Format Date and Datetime Fields
+      if (value && (typeof value === 'string' || typeof value === 'number') && (field.toLowerCase().includes('date') || field.toLowerCase().includes('time'))) {
+        try {
+          const dateObj = new Date(value);
+          if (!isNaN(dateObj.getTime())) {
+            if (field.toLowerCase().includes('datetime') || (typeof value === 'string' && value.includes(' '))) {
+              processed[field] = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+            } else if (field.toLowerCase().includes('date')) {
+              processed[field] = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
+            }
+            // Ensure custom date fields (not datetime) are YYYY-MM-DD for date inputs
+            if (field.startsWith('x_') && field.toLowerCase().includes('date') && !field.toLowerCase().includes('datetime')) {
+                processed[field] = Utilities.formatDate(dateObj, Session.getScriptTimeZone(), "yyyy-MM-dd");
+            }
+          }
+        } catch (e) {
+          logWarning(`Could not parse or format date for field ${field}: ${value}`, e);
+        }
+      }
     }
-    
-    // Formatear fechas
-    if (processedTicket.create_date) {
-      processedTicket.create_date_formatted = formatOdooDate(processedTicket.create_date);
+  }
+  logDebug("Processed ticket fields:", processed);
+  return processed;
+}
+
+// Nueva función para obtener detalles de un ticket para edición
+function getOdooTicketDetails(searchData) {
+  try {
+    logInfo("Iniciando obtención de detalles de ticket para edición", searchData);
+
+    const config = getOdooConfig();
+    if (!config.url || !config.db || !config.username || !config.password) {
+      throw new Error("Configuración de Odoo incompleta");
     }
-    if (processedTicket.write_date) {
-      processedTicket.write_date_formatted = formatOdooDate(processedTicket.write_date);
+
+    const props = PropertiesService.getScriptProperties();
+    const password = props.getProperty('ODOO_PASSWORD');
+
+    const uid = xmlrpcLogin(config.url, config.db, config.username, password);
+    logInfo("Autenticación exitosa para getOdooTicketDetails", { uid: uid });
+
+    const ticketId = parseInt(searchData.ticketId);
+    if (!ticketId || ticketId <= 0) {
+      throw new Error("ID de ticket inválido");
     }
-    if (processedTicket.date_deadline) {
-      processedTicket.date_deadline_formatted = formatOdooDate(processedTicket.date_deadline);
+
+    const model = searchData.model;
+    if (!model) {
+      throw new Error("Modelo no especificado");
     }
-    
-    // Formatear prioridad
-    if (processedTicket.priority !== undefined) {
-      const priorityMap = {
-        '0': 'Baja',
-        '1': 'Normal', 
-        '2': 'Alta',
-        '3': 'Urgente'
-      };
-      processedTicket.priority_name = priorityMap[processedTicket.priority.toString()] || 'Desconocida';
+
+    // Intentar leer todos los campos accesibles pasando una lista vacía para los campos.
+    // Odoo 'read' con fields=[] debería devolver todos los campos accesibles del registro.
+    const fieldsToGet = []; 
+    logInfo(`Buscando todos los detalles del ticket en modelo ${model}`, { ticket_id: ticketId });
+
+    const ticketDetailsArray = xmlrpcExecute(
+      config.url,
+      config.db,
+      uid,
+      password,
+      model,
+      'read', // Usar 'read' para obtener un solo registro con sus campos
+      [[ticketId], fieldsToGet] // [[IDs], [campos a obtener]] - lista vacía para todos los campos
+    );
+
+    if (ticketDetailsArray && ticketDetailsArray.length > 0) {
+      const foundTicket = ticketDetailsArray[0]; // 'read' devuelve un array con un objeto si se encuentra
+      logInfo(`Detalles del ticket encontrados en modelo ${model}`, { 
+        ticket_id: foundTicket.id,
+        name: foundTicket.name,
+        field_count: Object.keys(foundTicket).length
+      });
+      
+      // Procesar campos relacionales para obtener IDs y nombres si es necesario, y formatear fechas
+      const processedTicket = processTicketFields(config.url, config.db, uid, password, foundTicket, model);
+      
+      logInfo("Ticket procesado para edición", { processed_ticket_keys: Object.keys(processedTicket) });
+      return { success: true, ticket: processedTicket, model: model };
+
+    } else {
+      logWarning(`No se encontraron detalles para el ticket ID ${ticketId} en modelo ${model}`);
+      return { success: false, error: `No se encontraron detalles para el ticket ID ${ticketId} en modelo ${model}` };
     }
-    
-    logInfo("Campos del ticket procesados exitosamente");
-    return processedTicket;
-    
+
   } catch (error) {
-    logWarning("Error procesando campos relacionales", { error: error.toString() });
-    return ticket; // Devolver el ticket original si hay error
+    logError("Error al obtener detalles del ticket para edición", { error: error.toString(), searchData: searchData });
+    return { success: false, error: error.message || error.toString() };
   }
 }
 
-// Función auxiliar para formatear fechas de Odoo
-function formatOdooDate(odooDate) {
+// Función para obtener las etapas/estados de un modelo específico en Odoo
+function getOdooStagesForModel(modelData) {
   try {
-    if (!odooDate) return '';
-    
-    // Las fechas de Odoo vienen en formato UTC: "2024-01-15 10:30:00"
-    const date = new Date(odooDate.replace(' ', 'T') + 'Z'); // Agregar Z para UTC
-    
-    return date.toLocaleString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZone: 'America/Argentina/Buenos_Aires' // Ajustar zona horaria local
-    });
+    logInfo("Iniciando obtención de etapas para modelo", modelData);
+    const model = modelData.model;
+    if (!model) {
+      throw new Error("Modelo no especificado para obtener etapas.");
+    }
+
+    const config = getOdooConfig();
+    if (!config.url || !config.db || !config.username || !config.password) {
+      throw new Error("Configuración de Odoo incompleta.");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const password = props.getProperty('ODOO_PASSWORD');
+    const uid = xmlrpcLogin(config.url, config.db, config.username, password);
+    logInfo("Autenticación exitosa para getOdooStagesForModel", { uid: uid });
+
+    let stageModel;
+    let fieldsToFetch = ['id', 'name', 'sequence']; // Campos comunes
+
+    switch (model) {
+      case 'helpdesk.ticket':
+        stageModel = 'helpdesk.stage';
+        fieldsToFetch.push('fold'); // Campo específico de helpdesk.stage
+        break;
+      case 'project.task':
+        stageModel = 'project.task.type'; // Modelo de etapas para tareas
+        // project.task.type no tiene 'fold' por defecto, pero sí 'sequence'
+        break;
+      case 'crm.lead':
+        stageModel = 'crm.stage';
+        fieldsToFetch.push('fold'); // Campo específico de crm.stage
+        break;
+      default:
+        throw new Error("Modelo no soportado para obtener etapas: " + model);
+    }
+
+    logInfo(`Buscando etapas en modelo ${stageModel} para ${model}`, { fields: fieldsToFetch });
+    const stages = xmlrpcExecute(
+      config.url,
+      config.db,
+      uid,
+      password,
+      stageModel,
+      'search_read',
+      [[], fieldsToFetch], // Sin dominio específico, orden por defecto (sequence)
+      { order: 'sequence asc' } // Asegurar orden por secuencia
+    );
+
+    if (stages) {
+      logInfo(`Etapas encontradas para ${model}`, { count: stages.length, stages: stages });
+      return { success: true, stages: stages, model: model };
+    } else {
+      logWarning(`No se encontraron etapas para el modelo ${model} (usando ${stageModel})`);
+      return { success: false, error: `No se encontraron etapas para ${model}`, stages: [] };
+    }
+
   } catch (error) {
-    logWarning("Error formateando fecha", { date: odooDate, error: error.toString() });
-    return odooDate; // Devolver fecha original si hay error
+    logError("Error al obtener etapas de Odoo", { error: error.toString(), modelData: modelData });
+    return { success: false, error: error.message || error.toString(), stages: [] };
   }
+}
+
+// Función para actualizar un ticket existente en Odoo
+function updateOdooTicket(ticketId, ticketData) {
+  const odooUrl = PropertiesService.getUserProperties().getProperty('ODOO_URL');
+  const db = PropertiesService.getUserProperties().getProperty('ODOO_DB');
+  // const uid = PropertiesService.getUserProperties().getProperty('ODOO_UID'); // Assuming UID is stored if not using session email
+  const password = PropertiesService.getUserProperties().getProperty('ODOO_PASSWORD');
+    // Use a fixed UID for Brandon Depetris (ID=14) for all ticket operations
+  const uid = 14; // Brandon Depetris - Usuario asignado por defecto
+  logInfo(`Using Brandon Depetris (UID: ${uid}) for ticket operations`);
+
+
+  if (!ticketId || typeof ticketData !== 'object' || ticketData === null) {
+    Logger.log('Error: Invalid ticketId or ticketData for update.');
+    return { success: false, error: 'Invalid ticketId or ticketData.' };
+  }
+
+  const id = parseInt(ticketId, 10);
+  if (isNaN(id)) {
+    Logger.log('Error: ticketId must be an integer.');
+    return { success: false, error: 'Ticket ID must be an integer.' };
+  }
+
+  let processedValues = {};
+  for (const key in ticketData) {
+    if (ticketData.hasOwnProperty(key)) {
+      let value = ticketData[key];
+
+      if (key === 'id' || key === 'display_name') { // Read-only fields, skip
+        continue;
+      }
+
+      // Handle empty strings, null, or undefined
+      if (value === "" || value === null || value === undefined) {
+        // For most fields, empty/null/undefined means 'unset', which is 'false' in Odoo.
+        // Exception: Custom char/text fields (not relational, not date) might allow an empty string.
+        if (value === "" && key.startsWith("x_") && !key.endsWith("_id") && !key.endsWith("_ids") && !key.toLowerCase().includes("date")) {
+          processedValues[key] = "";
+        } else {
+          processedValues[key] = false;
+        }
+        continue;
+      }
+
+      // Date and Datetime fields
+      if (key.toLowerCase().includes('date')) {
+        try {
+          const d = new Date(value); // `value` could be 'YYYY-MM-DD' or a parsable date string
+          if (isNaN(d.getTime())) { // Invalid date
+            Logger.log(`Invalid date value for field ${key}: ${value}. Setting to false.`);
+            processedValues[key] = false;
+          } else {
+            // If 'datetime' or 'time' in key, format with time. Otherwise, date only.
+            if (key.toLowerCase().includes('datetime') || key.toLowerCase().includes('time')) {
+              processedValues[key] = Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
+            } else {
+              processedValues[key] = Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd");
+            }
+          }
+        } catch (e) {
+          Logger.log(`Could not parse date for field ${key}: ${value}. Error: ${e}. Setting to false.`);
+          processedValues[key] = false;
+        }
+        continue;
+      }
+
+      // Relational Many2one fields (e.g., user_id, x_custom_relation_id)
+      if (key.endsWith("_id")) {
+        const intValue = parseInt(value, 10);
+        // If value is not a valid integer, set to false (unset).
+        // Odoo expects an integer ID or false.
+        processedValues[key] = !isNaN(intValue) ? intValue : false;
+        continue;
+      }
+      
+      // Relational Many2many or One2many fields (e.g., tag_ids, x_custom_m2m_ids)
+      if (key.endsWith("_ids")) {
+        if (Array.isArray(value)) {
+          // Filter out non-numeric IDs and convert valid ones to integers
+          const idValues = value.map(val => parseInt(val, 10)).filter(val => !isNaN(val));
+          // Use Odoo's command (6, 0, [IDs]) to replace all existing relations with the new set.
+          // This works for setting or clearing (if idValues is empty).
+          processedValues[key] = [[6, 0, idValues]];
+        } else {
+          Logger.log(`Invalid value for M2M/O2M field ${key} (not an array): ${value}. Setting to false.`);
+          processedValues[key] = false; // Or potentially [[6, 0, []]] to attempt clearing
+        }
+        continue;
+      }
+
+      // Boolean fields (if sent as strings "true"/"false" from frontend)
+      if (typeof value === 'string') {
+        if (value.toLowerCase() === 'true') {
+          processedValues[key] = true;
+        } else if (value.toLowerCase() === 'false') {
+          processedValues[key] = false;
+        } else {
+          // If it's a string that looks like a number, parse it.
+          const numValue = parseFloat(value);
+          if (!isNaN(numValue) && numValue.toString() === value.trim()) { // Check if it was cleanly a number
+            processedValues[key] = numValue;
+          } else {
+            processedValues[key] = value; // Otherwise, keep as string
+          }
+        }
+      } else { 
+        // Value is already a boolean, number, or other type (e.g. array for M2M if not caught by _ids)
+        // This path should ideally only receive numbers or booleans if not string.
+        processedValues[key] = value;
+      }
+    }
+  }
+
+  if (Object.keys(processedValues).length === 0) {
+    Logger.log('No valid data to update for ticket ID: ' + ticketId);
+    return { success: true, message: 'No data to update (all fields were empty or invalid).', noOperation: true };
+  }
+
+  Logger.log(`Updating Odoo ticket ID: ${id} with data: ${JSON.stringify(processedValues)} for model helpdesk.ticket`);
+
+  const payload = XmlService.createElement('methodCall')
+    .addContent(XmlService.createElement('methodName').setText('execute_kw'))
+    .addContent(XmlService.createElement('params')
+      .addContent(XmlService.createElement('param').addContent(XmlService.createElement('value').addContent(XmlService.createElement('string').setText(db))))
+      .addContent(XmlService.createElement('param').addContent(XmlService.createElement('value').addContent(XmlService.createElement('int').setText(uid.toString()))))
+      .addContent(XmlService.createElement('param').addContent(XmlService.createElement('value').addContent(XmlService.createElement('string').setText(password))))
+      .addContent(XmlService.createElement('param').addContent(XmlService.createElement('value').addContent(XmlService.createElement('string').setText('helpdesk.ticket')))) // Model
+      .addContent(XmlService.createElement('param').addContent(XmlService.createElement('value').addContent(XmlService.createElement('string').setText('write'))))      // Method
+      .addContent(XmlService.createElement('param').addContent(XmlService.createElement('value').addContent(
+        XmlService.createElement('array').addContent(XmlService.createElement('data')
+          .addContent(XmlService.createElement('value').addContent( // First element of array: list of IDs to write to
+            XmlService.createElement('array').addContent(XmlService.createElement('data')
+              .addContent(XmlService.createElement('value').addContent(XmlService.createElement('int').setText(id.toString())))
+            )
+          ))
+          .addContent(XmlService.createElement('value').addContent(jsonToXml(processedValues))) // Second element: dictionary of values
+        )
+      )))
+    );
+
+  const xmlRequest = XmlService.getRawFormat().format(payload);
+  const options = {
+    'method': 'post',
+    'contentType': 'text/xml',
+    'payload': xmlRequest,
+    'muteHttpExceptions': true
+  };
+
+  try {
+    const response = UrlFetchApp.fetch(odooUrl + '/xmlrpc/2/object', options);
+    const responseCode = response.getResponseCode();
+    const responseBody = response.getContentText();
+
+    if (responseCode === 200) {
+      const xmlDoc = XmlService.parse(responseBody);
+      const root = xmlDoc.getRootElement();
+      
+      // Check for fault
+      const fault = root.getChild('fault');
+      if (fault) {
+        const faultStruct = fault.getChild('value').getChild('struct');
+        let faultString = "Odoo Error: ";
+        faultStruct.getChildren('member').forEach(member => {
+          const name = member.getChild('name').getText();
+          const value = member.getChild('value').getText(); // Simplified, might need deeper parsing for complex fault values
+          faultString += `${name}: ${value}; `;
+        });
+        Logger.log('Odoo update fault: ' + faultString + ' | Payload: ' + JSON.stringify(processedValues));
+        return { success: false, error: faultString };
+      }
+
+      // Successful update typically returns true (boolean 1)
+      const params = root.getChild('params');
+      if (params) {
+        const param = params.getChild('param');
+        if (param) {
+          const value = param.getChild('value');
+          if (value && value.getChild('boolean') && value.getChild('boolean').getText() === '1') {
+            Logger.log('Successfully updated ticket ID: ' + id);
+            // After successful update, fetch the updated ticket details to return to the client
+            // This ensures the client gets the most current state, including any server-side changes or computed fields.
+            // Pass an empty array to get all accessible fields.
+            return getOdooTicketDetails({ ticketId: id.toString(), fieldsToGet: [] });
+          }
+        }
+      }
+      Logger.log('Odoo update response not definitively successful: ' + responseBody + ' | Payload: ' + JSON.stringify(processedValues));
+      return { success: false, error: 'Odoo update did not return success: ' + responseBody };
+
+    } else {
+      Logger.log('Error updating Odoo ticket: HTTP ' + responseCode + ' - ' + responseBody + ' | Payload: ' + JSON.stringify(processedValues));
+      return { success: false, error: 'Server error: HTTP ' + responseCode + ' - ' + responseBody };
+    }
+  } catch (e) {
+    Logger.log('Exception during Odoo ticket update: ' + e.toString() + ' | Payload: ' + JSON.stringify(processedValues));
+    return { success: false, error: 'Exception: ' + e.toString() };
+  }
+}
+
+// Helper function to convert a JavaScript value to its XML-RPC <value> element
+function _convertValueToXmlElement(val) {
+  const valueElement = XmlService.createElement('value');
+  if (typeof val === 'string') {
+    valueElement.addContent(XmlService.createElement('string').setText(val));
+  } else if (typeof val === 'number') {
+    if (Number.isInteger(val)) {
+      valueElement.addContent(XmlService.createElement('int').setText(val.toString()));
+    } else {
+      valueElement.addContent(XmlService.createElement('double').setText(val.toString()));
+    }
+  } else if (typeof val === 'boolean') {
+    valueElement.addContent(XmlService.createElement('boolean').setText(val ? '1' : '0'));
+  } else if (val === null || val === undefined) {
+    // Odoo generally expects boolean false for unsetting fields.
+    // The data preparation logic in updateOdooTicket should ideally convert null/undefined to boolean `false`.
+    valueElement.addContent(XmlService.createElement('boolean').setText('0'));
+  } else if (Array.isArray(val)) {
+    const arrayDataElement = XmlService.createElement('array').addContent(XmlService.createElement('data'));
+    val.forEach(item => {
+      arrayDataElement.getChild('data').addContent(_convertValueToXmlElement(item)); // Recursive call for items
+    });
+    valueElement.addContent(arrayDataElement);
+  } else if (typeof val === 'object' && val !== null) {
+    // This assumes `val` is an object that should become a <struct>.
+    valueElement.addContent(jsonToXml(val)); // Recursive call for nested objects (structs)
+  } else {
+    // Fallback for other types. If `val` is literally `false` (boolean), it's already handled.
+    Logger.log("Warning: Unknown type in _convertValueToXmlElement: " + typeof val + " for value: " + val + ". Converting to string.");
+    valueElement.addContent(XmlService.createElement('string').setText(String(val)));
+  }
+  return valueElement;
+}
+
+// Helper function to convert JSON object to XML for Odoo
+function jsonToXml(obj) {
+  const struct = XmlService.createElement('struct');
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const member = XmlService.createElement('member');
+      member.addContent(XmlService.createElement('name').setText(key));
+      member.addContent(_convertValueToXmlElement(obj[key])); // Use the helper for the value
+      struct.addContent(member);
+    }
+  }
+  return struct;
+}
+
+/**
+ * Fetches and logs all available fields and processed information for a specific Odoo ticket.
+ * This is primarily a utility/debug function to display all information associated with a ticket.
+ *
+ * @param {string} ticketId The ID of the ticket to fetch.
+ * @param {string} modelName The Odoo model of the ticket (e.g., 'helpdesk.ticket', 'project.task').
+ * @return {object} An object containing the success status and either the processed ticket data or an error message.
+ */
+function viewAllTicketFields(ticketId, modelName) {
+  logInfo(`Attempting to view all fields for ticket ID: ${ticketId}, Model: ${modelName}`);
+
+  if (!ticketId || !modelName) {
+    const errorMsg = "Ticket ID and Model Name are required for viewAllTicketFields.";
+    logError(errorMsg);
+    return { success: false, error: errorMsg, ticket: null, model: modelName };
+  }
+
+  const searchParameters = {
+    ticketId: String(ticketId), // Ensure ticketId is a string
+    model: modelName
+    // fieldsToGet is implicitly an empty array in getOdooTicketDetails, meaning all fields
+  };
+
+  try {
+    const result = getOdooTicketDetails(searchParameters);
+
+    if (result.success && result.ticket) {
+      logInfo(`Successfully fetched all fields for ticket ID: ${ticketId}, Model: ${modelName}. Displaying details below.`);
+      
+      Logger.log(`---------------- DETAILED TICKET INFORMATION (ID: ${ticketId}, Model: ${modelName}) ----------------`);
+      const ticketData = result.ticket;
+      for (const field in ticketData) {
+        if (ticketData.hasOwnProperty(field)) {
+          let valueToLog = ticketData[field];
+          if (typeof valueToLog === 'object' && valueToLog !== null) {
+            try {
+              valueToLog = JSON.stringify(valueToLog);
+            } catch (e) {
+              valueToLog = `[Object: ${Object.prototype.toString.call(valueToLog)}]`;
+            }
+          } else if (valueToLog === undefined) {
+            valueToLog = "[undefined]";
+          } else if (valueToLog === null) {
+            valueToLog = "[null]";
+          }
+          Logger.log(`  ${field}: ${valueToLog}`);
+        }
+      }
+      Logger.log("------------------------------------------------------------------------------------");
+      
+      return result; 
+    } else {
+      const errorDetail = result.error || "Unknown error occurred while fetching ticket details.";
+      logError(`Failed to fetch details for ticket ID: ${ticketId}, Model: ${modelName}. Error: ${errorDetail}`);
+      Logger.log(`Error fetching ticket ${ticketId} (${modelName}): ${errorDetail}`);
+      return { success: false, error: errorDetail, ticket: null, model: modelName };
+    }
+  } catch (e) {
+    const exceptionMsg = `Exception in viewAllTicketFields for ticket ID ${ticketId} (${modelName}): ${e.toString()}`;
+    logError(exceptionMsg, { stack: e.stack });
+    Logger.log(exceptionMsg + (e.stack ? `\nStack: ${e.stack}` : ''));
+    return { success: false, error: exceptionMsg, ticket: null, model: modelName, exceptionDetail: e.toString() };
+  }
+}
+
+// Example of how to call this function from the Apps Script editor for testing
+function testViewAllTicketFields() {
+  // --- Configuration ---
+  // IMPORTANT: Ensure your Odoo connection details are correctly set in Script Properties.
+  // (File > Project properties > Script properties)
+  // Example properties needed: ODOO_URL, ODOO_DB, ODOO_USER, ODOO_PASSWORD
+
+  const exampleTicketId = "1"; // !!! REPLACE with a REAL Ticket ID from your Odoo instance !!!
+  const exampleModel = "helpdesk.ticket"; // !!! REPLACE with the correct MODEL if different (e.g., 'project.task') !!!
+
+  logInfo(`Starting testViewAllTicketFields for Ticket ID: ${exampleTicketId}, Model: ${exampleModel}`);
+  
+  const config = getOdooConfig(); 
+  if (!config.url || !config.db || !config.username || config.password === "") {
+    Logger.log("WARNING: Odoo configuration might be missing or incomplete in Script Properties. Please verify.");
+  } else {
+    logInfo("Odoo configuration seems present (URL, DB, User). Password status: " + config.password);
+  }
+
+  const result = viewAllTicketFields(exampleTicketId, exampleModel);
+
+  if (result && result.success) {
+    Logger.log(`SUCCESS: viewAllTicketFields returned ticket data for ID ${exampleTicketId}. Details are logged above.`);
+  } else {
+    Logger.log(`FAILURE: viewAllTicketFields failed for Ticket ID ${exampleTicketId}.`);
+    Logger.log("Error details: " + (result && result.error ? result.error : "No error message provided."));
+    if (result && result.exceptionDetail) {
+      Logger.log("Exception: " + result.exceptionDetail);
+    }
+  }
+  logInfo("Finished testViewAllTicketFields.");
 }

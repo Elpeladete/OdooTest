@@ -267,10 +267,14 @@
             background-color: #e3f2fd;
             border-color: #90caf9;
         }
-        
-        .ticket {
+          .ticket {
             background-color: #f3e5f5;
             border-color: #ce93d8;
+        }
+        
+        .users {
+            background-color: #e8f5e8;
+            border-color: #81c784;
         }
         
         .debug {
@@ -445,8 +449,7 @@
         .log-data {
             color: #6c757d;
             font-style: italic;
-        }
-          /* Ticket Information Display */
+        }        /* Ticket Information Display - Enhanced Design */
         .ticket-info {
             padding: 20px;
         }
@@ -470,10 +473,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 15px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .info-table td {
-            padding: 8px 12px;
+            padding: 12px 16px;
             border-bottom: 1px solid #eee;
             vertical-align: top;
         }
@@ -482,6 +489,8 @@
             width: 40%;
             font-weight: bold;
             color: #555;
+            background-color: #f8f9fa;
+            border-right: 2px solid #875A7B;
         }
         
         .info-table td:last-child {
@@ -491,10 +500,166 @@
         .description-box {
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 15px;
-            margin-top: 10px;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
             white-space: pre-wrap;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* Enhanced Ticket Cards */
+        .ticket-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .ticket-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #875A7B;
+        }
+        
+        .ticket-icon {
+            font-size: 2.5em;
+            margin-right: 15px;
+            color: #875A7B;
+        }
+        
+        .ticket-title {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .meta-item {
+            background-color: #e9ecef;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .meta-item.priority-high {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        
+        .meta-item.priority-urgent {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .meta-item.status-open {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        
+        .meta-item.status-closed {
+            background-color: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+        
+        /* Ticket Fields Display Improvements */
+        .ticket-fields-display {
+            max-width: 100%;
+        }
+        
+        .field-value-object {
+            background-color: #f1f3f4;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .ticket-summary-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 1px solid #90caf9;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .ticket-summary-box h4 {
+            color: #1565c0;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        
+        /* Form Enhancements */
+        .form-section {
+            background-color: #fafbfc;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section h3 {
+            color: #875A7B;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-section h3::before {
+            content: "📋";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #f39c12;
+        }
+        
+        .info-box h4 {
+            color: #856404;
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        
+        .info-box ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+          .info-box li {
+            margin-bottom: 8px;
             word-wrap: break-word;
         }
           .ticket-info h5 {
@@ -538,6 +703,132 @@
             font-size: 14px;
             border-top: 1px solid #ddd;
         }
+
+        /* Estilos para la tabla de campos de ticket */
+        .ticket-fields-display {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .ticket-fields-display h3 {
+            margin-top: 0;
+            color: #875A7B;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .fields-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .fields-table th, .fields-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top; /* Alinea el contenido arriba para valores largos */
+        }
+
+        .fields-table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            width: 30%; /* Ancho para la columna de nombre de campo */
+        }
+
+        .fields-table td {
+            background-color: #fff;
+            word-break: break-word; /* Para que valores largos no rompan el layout */
+        }
+          .field-value-object {
+            white-space: pre-wrap; /* Mantiene el formato de JSON.stringify */
+            max-height: 150px; /* Limita la altura de valores largos */
+            overflow-y: auto; /* Scroll para valores muy largos */
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        /* Estilos para la tabla de usuarios */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .users-table th, .users-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        .users-table th {
+            background-color: #875A7B;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .users-table td {
+            background-color: #fff;
+        }
+        
+        .users-table tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+        
+        .users-table tr:hover td {
+            background-color: #f0f0f0;
+        }
+        
+        .users-table-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .users-summary {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+          .users-summary h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #0056b3;
+        }
+        
+        /* Badge styles for users status */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .badge-secondary {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
     </style>
 </head>
 <body>
@@ -551,10 +842,10 @@
             <div class="tab-link" data-tab="lead">Crear Lead</div>
             <div class="tab-link" data-tab="ticket">Crear Ticket</div>
             <div class="tab-link" data-tab="read-ticket">Leer Tickets</div>
+            <div class="tab-link" data-tab="edit-ticket">Editar Ticket</div> <!-- Nueva Pestaña -->
+            <div class="tab-link" data-tab="users">Usuarios</div> <!-- Nueva Pestaña Usuarios -->
             <div class="tab-link" data-tab="debug">Diagnóstico</div>
-        </div>
-
-        <!-- Pestaña: Menú Principal -->
+        </div>        <!-- Pestaña: Menú Principal -->
         <div id="menu" class="tab-content">
             <div class="menu-container">
                 <div class="menu-item task" onclick="activateTab('task')">
@@ -569,6 +860,11 @@
                 <div class="menu-item ticket" onclick="activateTab('ticket')">
                     <h2>Crear Ticket</h2>
                     <p>Crea un nuevo ticket de soporte o helpdesk en Odoo</p>
+                </div>
+                
+                <div class="menu-item users" onclick="activateTab('users')">
+                    <h2>Usuarios</h2>
+                    <p>Lista todos los usuarios del sistema con su información comercial</p>
                 </div>
                 
                 <div class="menu-item debug" onclick="activateTab('debug')">
@@ -793,94 +1089,117 @@
                 </div>
             </div>        </div>        <!-- Pestaña: Crear Ticket -->
         <div id="ticket" class="tab-content">
-            <div class="card">
-                <h2>Crear Ticket de Soporte en Odoo</h2>
-                  <div class="utility-buttons">
+            <div class="card ticket-card">
+                <div class="ticket-header">
+                    <div class="ticket-icon">🎫</div>
+                    <h2 class="ticket-title">Crear Ticket de Soporte en Odoo</h2>
+                </div>
+                
+                <div class="utility-buttons">
                     <button type="button" class="btn btn-info btn-small" onclick="loadTicketFormData()" title="Recargar usuarios técnicos desde Odoo">
                         🔄 Recargar Usuarios
                     </button>
                     <small>Recarga la lista de usuarios técnicos desde Odoo</small>
                 </div>
-                  <form id="ticket-form">
-                    <div class="form-group">
-                        <label for="ticket-name" class="required">Título del Ticket</label>
-                        <input type="text" id="ticket-name" required placeholder="Ej. Reparación DJI Mavic Pro">
+                
+                <form id="ticket-form">
+                    <div class="form-section">
+                        <h3>Información Principal del Ticket</h3>
+                        
+                        <div class="form-group">
+                            <label for="ticket-name" class="required">📝 Título del Ticket</label>
+                            <input type="text" id="ticket-name" required placeholder="Ej. Reparación DJI Mavic Pro">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-priority">⚡ Prioridad</label>
+                            <select id="ticket-priority">
+                                <option value="0">🟢 Baja</option>
+                                <option value="1" selected>🟡 Normal</option>
+                                <option value="2">🟠 Alta</option>
+                                <option value="3">🔴 Urgente</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-description" class="required">📋 Detalles del Problema</label>
+                            <textarea id="ticket-description" required placeholder="Describe detalladamente el problema. Puedes incluir enlaces (URLs) que se convertirán automáticamente en enlaces clicables.&#10;&#10;Ejemplo: Más información en https://ejemplo.com"></textarea>
+                            <small>📝 Los enlaces web se convertirán automáticamente en enlaces clicables. Los saltos de línea se preservarán.</small>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="ticket-priority">Prioridad</label>
-                        <select id="ticket-priority">
-                            <option value="0">Baja</option>
-                            <option value="1" selected>Normal</option>
-                            <option value="2">Alta</option>
-                            <option value="3">Urgente</option>
-                        </select>
+                    <div class="form-section">
+                        <h3>Información del Cliente</h3>
+                        
+                        <div class="form-group">
+                            <label for="ticket-partner-name" class="required">👤 Nombre del Cliente</label>
+                            <input type="text" id="ticket-partner-name" required placeholder="Ej. Juan Pérez">
+                            <small>🔍 El sistema buscará automáticamente si el cliente existe. Si no existe, se informará en los detalles.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-partner-email">📧 Email del Cliente</label>
+                            <input type="email" id="ticket-partner-email" placeholder="Ej. cliente@empresa.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-partner-phone">📞 Teléfono del Cliente</label>
+                            <input type="tel" id="ticket-partner-phone" placeholder="Ej. +54 341 1234567">
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="ticket-partner-name" class="required">Nombre del Cliente</label>
-                        <input type="text" id="ticket-partner-name" required placeholder="Ej. Juan Pérez">
-                        <small>El sistema buscará automáticamente si el cliente existe. Si no existe, se informará en los detalles.</small>
+                    <div class="form-section">
+                        <h3>Archivos y Documentación</h3>
+                        
+                        <div class="form-group">
+                            <label for="ticket-attachments">📎 Archivos Adjuntos</label>
+                            <input type="file" id="ticket-attachments" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar">
+                            <small>📁 Puedes seleccionar múltiples archivos. Formatos soportados: PDF, DOC, TXT, imágenes, ZIP (máx. 10MB por archivo)</small>
+                            <div id="attachment-preview" class="attachment-preview"></div>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="ticket-partner-email">Email del Cliente</label>
-                        <input type="email" id="ticket-partner-email" placeholder="Ej. cliente@empresa.com">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ticket-partner-phone">Teléfono del Cliente</label>
-                        <input type="tel" id="ticket-partner-phone" placeholder="Ej. +54 341 1234567">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ticket-description" class="required">Detalles del Problema</label>
-                        <textarea id="ticket-description" required placeholder="Describe detalladamente el problema. Puedes incluir enlaces (URLs) que se convertirán automáticamente en enlaces clicables.&#10;&#10;Ejemplo: Más información en https://ejemplo.com"></textarea>
-                        <small>📝 Los enlaces web se convertirán automáticamente en enlaces clicables. Los saltos de línea se preservarán.</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ticket-attachments">Archivos Adjuntos</label>
-                        <input type="file" id="ticket-attachments" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.zip,.rar">
-                        <small>Puedes seleccionar múltiples archivos. Formatos soportados: PDF, DOC, TXT, imágenes, ZIP (máx. 10MB por archivo)</small>
-                        <div id="attachment-preview" class="attachment-preview"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ticket-user-id">Técnico Asignado (Opcional)</label>
-                        <select id="ticket-user-id">
-                            <option value="">-- Seleccionar técnico --</option>
-                            <!-- Se cargarán dinámicamente desde Odoo -->
-                        </select>
-                        <small>Si no se selecciona, se asignará automáticamente</small>
+                    <div class="form-section">
+                        <h3>Asignación y Configuración</h3>
+                        
+                        <div class="form-group">
+                            <label for="ticket-user-id">👨‍💻 Técnico Asignado (Opcional)</label>
+                            <select id="ticket-user-id">
+                                <option value="">-- Seleccionar técnico --</option>
+                                <!-- Se cargarán dinámicamente desde Odoo -->
+                            </select>
+                            <small>🤖 Si no se selecciona, se asignará automáticamente</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-category">🏷️ Categoría (Manual)</label>
+                            <input type="text" id="ticket-category" placeholder="Ej. Soporte Técnico, Funcional, etc.">
+                            <small>📂 Solo si no se selecciona un tipo de ticket</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-stage-id">📊 Estado del Ticket</label>
+                            <select id="ticket-stage-id">
+                                <option value="">-- Seleccionar estado --</option>
+                                <!-- Se cargarán dinámicamente desde Odoo -->
+                            </select>
+                            <small>🔄 Estado o etapa actual del ticket</small>
+                        </div>
                     </div>
                     
                     <div class="info-box">
                         <h4>ℹ️ Configuración Automática</h4>
                         <ul>
-                            <li><strong>Tipo de ticket:</strong> IngresoReparacionesDJI (automático)</li>
-                            <li><strong>Equipo de soporte:</strong> Team GarantíasDJI (automático)</li>
-                            <li><strong>Búsqueda de cliente:</strong> Se buscará automáticamente por nombre</li>
-                            <li><strong>Formato HTML:</strong> Los enlaces se convertirán automáticamente</li>
+                            <li><strong>🎯 Tipo de ticket:</strong> IngresoReparacionesDJI (automático)</li>
+                            <li><strong>👥 Equipo de soporte:</strong> Team GarantíasDJI (automático)</li>
+                            <li><strong>🔍 Búsqueda de cliente:</strong> Se buscará automáticamente por nombre</li>
+                            <li><strong>🌐 Formato HTML:</strong> Los enlaces se convertirán automáticamente</li>
                         </ul>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="ticket-category">Categoría (Manual)</label>
-                        <input type="text" id="ticket-category" placeholder="Ej. Soporte Técnico, Funcional, etc.">
-                        <small>Solo si no se selecciona un tipo de ticket</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="ticket-stage-id">Estado del Ticket</label>
-                        <select id="ticket-stage-id">
-                            <option value="">-- Seleccionar estado --</option>
-                            <!-- Se cargarán dinámicamente desde Odoo -->
-                        </select>
-                        <small>Estado o etapa actual del ticket</small>
-                    </div>                      <div class="btn-container">
-                        <button type="submit" class="btn btn-primary">Crear Ticket</button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm('ticket-form')">Limpiar</button>
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-primary">✅ Crear Ticket</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm('ticket-form')">🧹 Limpiar Formulario</button>
                     </div>
                 </form>
                 
@@ -888,46 +1207,181 @@
                 
                 <div class="loading" id="ticket-loading">
                     <div class="loading-spinner"></div>
-                    <p>Creando ticket...</p>
+                    <p>🔄 Creando ticket...</p>
+                </div>
+            </div>
+        </div>        <!-- Pestaña: Leer Tickets -->
+        <div id="read-ticket" class="tab-content">
+            <div class="card ticket-card">
+                <div class="ticket-header">
+                    <div class="ticket-icon">🔍</div>
+                    <h2 class="ticket-title">Buscar y Leer Tickets de Odoo</h2>
+                </div>
+                
+                <div class="ticket-summary-box">
+                    <h4>📋 Búsqueda Avanzada de Tickets</h4>
+                    <p>🎯 Busca tickets existentes por ID para verificar su estado y toda la información asociada. 
+                    Obtén una vista completa de todos los campos y datos del ticket seleccionado.</p>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Criterios de Búsqueda</h3>
+                    
+                    <form id="read-ticket-form">
+                        <div class="form-group">
+                            <label for="ticket-search-id">🎟️ ID del Ticket</label>
+                            <input type="number" id="ticket-search-id" placeholder="Ej: 123" min="1" required>
+                            <small>💡 Introduce el ID numérico del ticket que quieres buscar y examinar</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticket-search-model">📊 Modelo de Búsqueda</label>
+                            <select id="ticket-search-model">
+                                <option value="helpdesk.ticket" selected>🎫 helpdesk.ticket - Tickets de Soporte</option>
+                                <option value="project.task">📋 project.task - Tareas de Proyecto</option>
+                                <option value="crm.lead">💼 crm.lead - Oportunidades/Leads</option>
+                                <option value="ALL_MODELS_DEBUG">🔍 Ver en todos los modelos (DEBUG)</option> 
+                            </select>
+                            <small>🎯 Selecciona el modelo donde buscar. DEBUG intentará en varios modelos conocidos.</small>
+                        </div>
+                        
+                        <div class="btn-container">
+                            <button type="submit" class="btn btn-primary">🔍 Buscar y Ver Detalles</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetReadTicketForm()">🧹 Limpiar Búsqueda</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div id="read-ticket-result" class="ticket-fields-display"></div>
+                
+                <div class="loading" id="read-ticket-loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>🔍 Buscando y procesando todos los campos del ticket...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Pestaña: Leer Tickets -->
-        <div id="read-ticket" class="tab-content">
+        <!-- Pestaña: Editar Ticket -->
+        <div id="edit-ticket" class="tab-content">
             <div class="card">
-                <h2>🔍 Buscar y Leer Tickets</h2>
-                <p>Busca tickets existentes por ID para verificar su estado y información.</p>
-                
-                <form id="read-ticket-form">
-                    <div class="form-group">
-                        <label for="ticket-search-id">ID del Ticket</label>
-                        <input type="number" id="ticket-search-id" placeholder="Ej: 123" min="1" required>
-                        <small>Introduce el ID numérico del ticket que quieres buscar</small>
+                <h2>✏️ Editar Ticket de Odoo</h2>
+                <p>Busca un ticket por su ID y modelo, luego modifica sus campos.</p>
+
+                <!-- Sección de Búsqueda del Ticket -->
+                <div id="edit-ticket-search-section">
+                    <form id="edit-ticket-search-form">
+                        <div class="form-group">
+                            <label for="edit-ticket-id" class="required">ID del Ticket a Editar</label>
+                            <input type="number" id="edit-ticket-id" required placeholder="Ej: 123" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-ticket-model" class="required">Modelo del Ticket</label>
+                            <select id="edit-ticket-model" required>
+                                <option value="">-- Seleccionar Modelo --</option>
+                                <option value="helpdesk.ticket">🎫 helpdesk.ticket</option>
+                                <option value="project.task">📋 project.task</option>
+                                <option value="crm.lead">💼 crm.lead</option>
+                            </select>
+                            <small>Es importante seleccionar el modelo correcto del ticket que deseas editar.</small>
+                        </div>
+                        <div class="btn-container">
+                            <button type="submit" class="btn btn-primary">🔍 Buscar Ticket para Editar</button>
+                        </div>
+                    </form>
+                    <div id="edit-ticket-search-result"></div>
+                    <div class="loading" id="edit-ticket-search-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Buscando ticket...</p>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="ticket-search-model">Modelo de Búsqueda</label>
-                        <select id="ticket-search-model">
-                            <option value="auto">🤖 Detección Automática</option>
-                            <option value="helpdesk.ticket">🎫 helpdesk.ticket</option>
-                            <option value="project.task">📋 project.task</option>
-                            <option value="crm.lead">💼 crm.lead</option>
-                        </select>
-                        <small>Selecciona el modelo donde buscar o usa detección automática</small>
+                </div>
+
+                <!-- Sección de Edición del Ticket (inicialmente oculta) -->
+                <div id="edit-ticket-form-section" style="display: none;">
+                    <h3>Detalles del Ticket <span id="editing-ticket-id-model"></span></h3>
+                    <form id="edit-ticket-update-form">
+                        <input type="hidden" id="update-ticket-original-id">
+                        <input type="hidden" id="update-ticket-original-model">
+
+                        <div class="form-group">
+                            <label for="update-ticket-name" class="required">Título del Ticket</label>
+                            <input type="text" id="update-ticket-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="update-ticket-priority">Prioridad</label>
+                            <select id="update-ticket-priority">
+                                <option value="0">Baja</option>
+                                <option value="1">Normal</option>
+                                <option value="2">Alta</option>
+                                <option value="3">Urgente</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="update-ticket-user-id">Técnico Asignado</label>
+                            <select id="update-ticket-user-id">
+                                <option value="">-- Seleccionar técnico --</option>
+                                <!-- Se cargarán dinámicamente -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="update-ticket-stage-id">Estado del Ticket</label>
+                            <select id="update-ticket-stage-id">
+                                <option value="">-- Seleccionar estado --</option>
+                                <!-- Se cargarán dinámicamente según el modelo -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="update-ticket-description">Descripción</label>
+                            <textarea id="update-ticket-description" placeholder="Detalles del problema..."></textarea>
+                            <small>Los saltos de línea se preservarán. Los enlaces web se convertirán automáticamente.</small>
+                        </div>
+                        
+                        <!-- Campos específicos del modelo (se podrían añadir más aquí) -->
+                        <div id="edit-ticket-model-specific-fields">
+                            <!-- Por ejemplo, para project.task podría ir project_id -->
+                            <!-- Para crm.lead podría ir expected_revenue, probability -->
+                        </div>
+
+                        <div class="btn-container">
+                            <button type="submit" class="btn btn-success">💾 Guardar Cambios</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelEditTicket()">Cancelar Edición</button>
+                        </div>
+                    </form>
+                    <div id="edit-ticket-update-result"></div>
+                    <div class="loading" id="edit-ticket-update-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Guardando cambios...</p>
                     </div>
-                    
-                    <div class="btn-container">
-                        <button type="submit" class="btn btn-primary">🔍 Buscar Ticket</button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm('read-ticket-form')">🧹 Limpiar</button>
-                    </div>
-                </form>
+                </div>
+            </div>        </div>
+
+        <!-- Pestaña: Usuarios -->
+        <div id="users" class="tab-content">
+            <div class="card">
+                <h2>👥 Usuarios del Sistema</h2>
+                <p>Lista completa de usuarios registrados en Odoo con su información comercial</p>
                 
-                <div id="read-ticket-result"></div>
+                <div class="utility-buttons">
+                    <button type="button" class="btn btn-primary" onclick="loadUsersData()" title="Cargar lista de usuarios desde Odoo">
+                        🔄 Cargar Usuarios
+                    </button>
+                    <small>Actualiza la información de usuarios desde el servidor Odoo</small>
+                </div>
                 
-                <div class="loading" id="read-ticket-loading" style="display: none;">
+                <div id="users-summary" class="users-summary" style="display: none;">
+                    <h4>📊 Resumen</h4>
+                    <p id="users-count">Total de usuarios: Cargando...</p>
+                    <p id="users-last-update">Última actualización: <span id="users-timestamp">--</span></p>
+                </div>
+                
+                <div id="users-result"></div>
+                
+                <div class="loading" id="users-loading" style="display: none;">
                     <div class="loading-spinner"></div>
-                    <p>🔍 Buscando ticket...</p>
+                    <p>📋 Cargando usuarios desde Odoo...</p>
                 </div>
             </div>
         </div>
@@ -1046,7 +1500,11 @@
             console.log('✅ Formulario de tickets configurado');
             
             setupReadTicketForm();
-            console.log('✅ Formulario de lectura de tickets configurado');
+            console.log('✅ Formulario de lectura de tickets configurado');            setupEditTicketForm(); // Nueva inicialización
+            console.log('✅ Formulario de edición de tickets configurado');
+            
+            setupUsersTab();
+            console.log('✅ Funcionalidad de usuarios configurada');
             
             setupDebugFunctions();
             console.log('✅ Funciones de debug configuradas');
@@ -1077,11 +1535,16 @@
             // Activar la pestaña seleccionada
             document.getElementById(tabId).classList.add('active');
             document.querySelector(`.tab-link[data-tab="${tabId}"]`).classList.add('active');
-            
-            // Cargar datos específicos de la pestaña si es necesario
+              // Cargar datos específicos de la pestaña si es necesario
             if (tabId === 'debug') {
                 loadConfiguration();
                 loadLogs();
+            } else if (tabId === 'users') {
+                // Auto-cargar usuarios cuando se accede a la pestaña por primera vez
+                const usersResult = document.getElementById('users-result');
+                if (!usersResult.innerHTML.trim()) {
+                    loadUsersData();
+                }
             }
         }
         
@@ -1320,8 +1783,9 @@
             } else {
                 dropdown.innerHTML = '<option value="">-- No hay usuarios disponibles --</option>';
                 console.log('⚠️ No se encontraron usuarios');
-            }        }
-        
+            }
+        }
+
         function onTicketSuccess(response) {
             console.log('✅ Respuesta exitosa del servidor:', response);
             document.getElementById('ticket-loading').style.display = 'none';
@@ -1345,7 +1809,8 @@
             console.error('❌ Error en la llamada al servidor:', error);
             document.getElementById('ticket-loading').style.display = 'none';
             document.getElementById('ticket-result').innerHTML = 
-                `<div class="alert alert-danger">Error: ${error.message || error}</div>`;        }
+                `<div class="alert alert-danger">Error: ${error.message || error}</div>`;        
+        }
         
         // ----- FUNCIONES PARA LEER TICKETS -----
         function setupReadTicketForm() {
@@ -1388,7 +1853,7 @@
             document.getElementById('read-ticket-loading').style.display = 'none';
             
             if (response.success) {
-                displayTicketInformation(response);
+                displayAllTicketFields(response.ticket, response.model, response.success, response.error);
             } else {
                 document.getElementById('read-ticket-result').innerHTML = 
                     `<div class="alert alert-warning">
@@ -1408,44 +1873,72 @@
                     <p>${error.message || error}</p>
                 </div>`;
         }
-        
-        function displayTicketInformation(response) {
-            const ticket = response.ticket;
-            const model = response.model;
-            
-            console.log('📊 Mostrando información del ticket:', ticket);
-            
-            let html = `
-                <div class="alert alert-success">
-                    <h4>🎫 Ticket encontrado (${model})</h4>
-                    <p>Información del ticket ID: ${ticket.id}</p>
+          function displayAllTicketFields(ticket, model, success /* always true when called from onReadTicketSuccess */, errorMsg /* always undefined here */) {
+            const resultDiv = document.getElementById('read-ticket-result');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            try {
+                // Since this function is called from onReadTicketSuccess, 'success' is true.
+                // We primarily need to check the 'ticket' object.
+                if (ticket && typeof ticket === 'object' && Object.keys(ticket).length > 0) {
+                    // Enhanced ticket display with modern design
+                    let html = `
+                <!-- Success Header -->
+                <div class="alert alert-success" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 1px solid #b8dacc; border-radius: 12px;">
+                    <div class="ticket-header" style="border-bottom: none; margin-bottom: 0;">
+                        <div class="ticket-icon" style="color: #28a745;">🎫</div>
+                        <div>
+                            <h4 class="ticket-title" style="margin: 0; color: #155724;">Ticket Encontrado</h4>
+                            <p style="margin: 5px 0 0 0; color: #155724; opacity: 0.8;">Modelo: ${escapeHtml(model)} • ID: ${ticket.id}</p>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="card">
+                <!-- Main Ticket Card -->
+                <div class="ticket-card" style="margin-top: 20px;">
                     <div class="ticket-info">
+                        <!-- Ticket Header Info -->
+                        <div class="ticket-summary-box">
+                            <h4 style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">${getPriorityIcon(ticket.priority)}</span>
+                                ${ticket.name ? escapeHtml(ticket.name) : 'Sin título'}
+                            </h4>
+                            <div class="ticket-meta">
+                                <span class="meta-item">🆔 ID: ${ticket.id}</span>
+                                <span class="meta-item">📊 Modelo: ${escapeHtml(model)}</span>
+                                ${ticket.stage_id_name ? `<span class="meta-item status-open">🎯 ${escapeHtml(ticket.stage_id_name)}</span>` : ''}
+                                ${ticket.kanban_state ? `<span class="meta-item">🏃 ${escapeHtml(ticket.kanban_state)}</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Information Grid -->
                         <div class="row">
                             <div class="col-6">
-                                <h5>📋 Información Básica</h5>
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>📋</span> Información Principal
+                                </h5>
                                 <table class="info-table">
-                                    <tr><td><strong>ID:</strong></td><td>${ticket.id}</td></tr>
-                                    <tr><td><strong>Título:</strong></td><td>${ticket.name || 'Sin título'}</td></tr>
-                                    <tr><td><strong>Modelo:</strong></td><td>${model}</td></tr>
-                                    <tr><td><strong>Prioridad:</strong></td><td>${getPriorityIcon(ticket.priority)} ${ticket.priority_name || ticket.priority || 'No definida'}</td></tr>
-                                    ${ticket.stage_id_name ? `<tr><td><strong>Estado:</strong></td><td>${ticket.stage_id_name}</td></tr>` : ''}
-                                    ${ticket.kanban_state ? `<tr><td><strong>Estado Kanban:</strong></td><td>${ticket.kanban_state}</td></tr>` : ''}
+                                    <tr><td>🆔 ID del Ticket</td><td><span class="badge" style="background: #875A7B; color: white; padding: 4px 8px; border-radius: 12px;">${ticket.id}</span></td></tr>
+                                    <tr><td>📝 Título</td><td>${ticket.name ? escapeHtml(ticket.name) : '<em style="color: #999;">Sin título</em>'}</td></tr>
+                                    <tr><td>📊 Modelo de Datos</td><td><code style="background: #f8f9fa; padding: 2px 6px; border-radius: 4px;">${escapeHtml(model)}</code></td></tr>
+                                    <tr><td>⚡ Prioridad</td><td>${getPriorityIcon(ticket.priority)} <strong>${getPriorityText(ticket.priority)}</strong></td></tr>
+                                    ${ticket.stage_id_name ? `<tr><td>🎯 Estado Actual</td><td><span class="badge" style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px;">${escapeHtml(ticket.stage_id_name)}</span></td></tr>` : ''}
+                                    ${ticket.kanban_state ? `<tr><td>🏃 Estado Kanban</td><td>${getKanbanStateIcon(ticket.kanban_state)} ${escapeHtml(ticket.kanban_state)}</td></tr>` : ''}
                                 </table>
                             </div>
                             
                             <div class="col-6">
-                                <h5>👥 Asignación y Contacto</h5>
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>👥</span> Asignación y Responsables
+                                </h5>
                                 <table class="info-table">
-                                    ${ticket.user_id_name ? `<tr><td><strong>Asignado a:</strong></td><td>${ticket.user_id_name}</td></tr>` : ''}
-                                    ${ticket.assigned_users && ticket.assigned_users.length > 0 ? `<tr><td><strong>Usuarios asignados:</strong></td><td>${ticket.user_ids_count} usuario(s)</td></tr>` : ''}
-                                    ${ticket.team_id_name ? `<tr><td><strong>Equipo:</strong></td><td>${ticket.team_id_name}</td></tr>` : ''}
-                                    ${ticket.project_id_name ? `<tr><td><strong>Proyecto:</strong></td><td>${ticket.project_id_name}</td></tr>` : ''}
-                                    ${ticket.partner_id_name ? `<tr><td><strong>Cliente:</strong></td><td>${ticket.partner_id_name}</td></tr>` : ''}
-                                    ${ticket.contact_name ? `<tr><td><strong>Contacto:</strong></td><td>${ticket.contact_name}</td></tr>` : ''}
-                                    ${ticket.partner_name ? `<tr><td><strong>Nombre cliente:</strong></td><td>${ticket.partner_name}</td></tr>` : ''}
+                                    ${ticket.user_id_name ? `<tr><td>👤 Técnico Asignado</td><td><span style="color: #28a745; font-weight: 600;">👨‍💼 ${escapeHtml(ticket.user_id_name)}</span></td></tr>` : '<tr><td>👤 Técnico Asignado</td><td><em style="color: #999;">Sin asignar</em></td></tr>'}
+                                    ${ticket.assigned_users && ticket.assigned_users.length > 0 ? `<tr><td>👥 Usuarios Asignados</td><td><span class="badge" style="background: #6f42c1; color: white; padding: 4px 8px; border-radius: 12px;">${ticket.user_ids_count} usuario(s)</span></td></tr>` : ''}
+                                    ${ticket.team_id_name ? `<tr><td>🏢 Equipo de Trabajo</td><td><span style="color: #6f42c1; font-weight: 600;">🏢 ${escapeHtml(ticket.team_id_name)}</span></td></tr>` : '<tr><td>🏢 Equipo de Trabajo</td><td><em style="color: #999;">Sin equipo asignado</em></td></tr>'}
+                                    ${ticket.project_id_name ? `<tr><td>📋 Proyecto</td><td><span style="color: #fd7e14; font-weight: 600;">📋 ${escapeHtml(ticket.project_id_name)}</span></td></tr>` : ''}
+                                    ${ticket.partner_id_name ? `<tr><td>🏢 Cliente Principal</td><td><span style="color: #20c997; font-weight: 600;">🏢 ${escapeHtml(ticket.partner_id_name)}</span></td></tr>` : ''}
+                                    ${ticket.contact_name ? `<tr><td>👤 Persona de Contacto</td><td>👤 ${escapeHtml(ticket.contact_name)}</td></tr>` : ''}
+                                    ${ticket.partner_name ? `<tr><td>📇 Nombre del Cliente</td><td>📇 ${escapeHtml(ticket.partner_name)}</td></tr>` : ''}
                                 </table>
                             </div>
                         </div>
@@ -1453,75 +1946,426 @@
                         ${ticket.description ? `
                         <div class="row">
                             <div class="col-12">
-                                <h5>📝 Descripción</h5>
-                                <div class="description-box">
-                                    ${ticket.description.replace(/\n/g, '<br>')}
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px; margin-top: 20px;">
+                                    <span>📝</span> Descripción Detallada
+                                </h5>
+                                <div class="description-box" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-left: 4px solid #875A7B; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    ${ticket.description.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}
                                 </div>
                             </div>
                         </div>
                         ` : ''}
                         
-                        <div class="row">
+                        <div class="row" style="margin-top: 20px;">
                             <div class="col-6">
-                                <h5>📧 Información de Contacto</h5>
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>📧</span> Información de Contacto
+                                </h5>
                                 <table class="info-table">
-                                    ${ticket.partner_email ? `<tr><td><strong>Email:</strong></td><td><a href="mailto:${ticket.partner_email}">${ticket.partner_email}</a></td></tr>` : ''}
-                                    ${ticket.email_from ? `<tr><td><strong>Email origen:</strong></td><td><a href="mailto:${ticket.email_from}">${ticket.email_from}</a></td></tr>` : ''}
-                                    ${ticket.partner_phone ? `<tr><td><strong>Teléfono:</strong></td><td>${ticket.partner_phone}</td></tr>` : ''}
-                                    ${ticket.phone ? `<tr><td><strong>Teléfono:</strong></td><td>${ticket.phone}</td></tr>` : ''}
-                                    ${ticket.mobile ? `<tr><td><strong>Móvil:</strong></td><td>${ticket.mobile}</td></tr>` : ''}
+                                    ${ticket.partner_email ? `<tr><td>📧 Email Principal</td><td><a href="mailto:${escapeHtml(ticket.partner_email)}" style="color: #007bff; text-decoration: none; font-weight: 600;">📧 ${escapeHtml(ticket.partner_email)}</a></td></tr>` : ''}
+                                    ${ticket.email_from ? `<tr><td>📤 Email de Origen</td><td><a href="mailto:${escapeHtml(ticket.email_from)}" style="color: #007bff; text-decoration: none;">📤 ${escapeHtml(ticket.email_from)}</a></td></tr>` : ''}
+                                    ${ticket.partner_phone ? `<tr><td>📞 Teléfono</td><td><a href="tel:${escapeHtml(ticket.partner_phone)}" style="color: #28a745; text-decoration: none; font-weight: 600;">📞 ${escapeHtml(ticket.partner_phone)}</a></td></tr>` : ''}
+                                    ${ticket.phone ? `<tr><td>☎️ Teléfono Alternativo</td><td><a href="tel:${escapeHtml(ticket.phone)}" style="color: #28a745; text-decoration: none;">☎️ ${escapeHtml(ticket.phone)}</a></td></tr>` : ''}
+                                    ${ticket.mobile ? `<tr><td>📱 Móvil</td><td><a href="tel:${escapeHtml(ticket.mobile)}" style="color: #28a745; text-decoration: none; font-weight: 600;">📱 ${escapeHtml(ticket.mobile)}</a></td></tr>` : ''}
+                                    ${!ticket.partner_email && !ticket.email_from && !ticket.partner_phone && !ticket.phone && !ticket.mobile ? '<tr><td colspan="2"><em style="color: #999;">Sin información de contacto disponible</em></td></tr>' : ''}
                                 </table>
                             </div>
                             
                             <div class="col-6">
-                                <h5>📅 Fechas</h5>
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>📅</span> Fechas Importantes
+                                </h5>
                                 <table class="info-table">
-                                    ${ticket.create_date_formatted ? `<tr><td><strong>Creado:</strong></td><td>${ticket.create_date_formatted}</td></tr>` : ''}
-                                    ${ticket.write_date_formatted ? `<tr><td><strong>Última modificación:</strong></td><td>${ticket.write_date_formatted}</td></tr>` : ''}
-                                    ${ticket.date_deadline_formatted ? `<tr><td><strong>Fecha límite:</strong></td><td>${ticket.date_deadline_formatted}</td></tr>` : ''}
+                                    ${ticket.create_date_formatted ? `<tr><td>🗓️ Fecha de Creación</td><td><span style="color: #6f42c1; font-weight: 600;">🗓️ ${escapeHtml(ticket.create_date_formatted)}</span></td></tr>` : ''}
+                                    ${ticket.write_date_formatted ? `<tr><td>✏️ Última Modificación</td><td><span style="color: #fd7e14; font-weight: 600;">✏️ ${escapeHtml(ticket.write_date_formatted)}</span></td></tr>` : ''}
+                                    ${ticket.date_deadline_formatted ? `<tr><td>⏰ Fecha Límite</td><td><span style="color: #dc3545; font-weight: 700;">⏰ ${escapeHtml(ticket.date_deadline_formatted)}</span></td></tr>` : ''}
+                                    ${ticket.close_date_formatted ? `<tr><td>✅ Fecha de Cierre</td><td><span style="color: #28a745; font-weight: 600;">✅ ${escapeHtml(ticket.close_date_formatted)}</span></td></tr>` : ''}
+                                    ${!ticket.create_date_formatted && !ticket.write_date_formatted && !ticket.date_deadline_formatted && !ticket.close_date_formatted ? '<tr><td colspan="2"><em style="color: #999;">Sin fechas disponibles</em></td></tr>' : ''}
                                 </table>
                             </div>
                         </div>
                         
                         ${model === 'crm.lead' && (ticket.probability !== undefined || ticket.expected_revenue !== undefined) ? `
-                        <div class="row">
+                        <div class="row" style="margin-top: 20px;">
                             <div class="col-12">
-                                <h5>💰 Información de Lead</h5>
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>💰</span> Información Comercial (CRM Lead)
+                                </h5>
                                 <table class="info-table">
-                                    ${ticket.probability !== undefined ? `<tr><td><strong>Probabilidad:</strong></td><td>${ticket.probability}%</td></tr>` : ''}
-                                    ${ticket.expected_revenue !== undefined ? `<tr><td><strong>Ingresos esperados:</strong></td><td>$${ticket.expected_revenue}</td></tr>` : ''}
+                                    ${ticket.probability !== undefined ? `<tr><td>📊 Probabilidad de Éxito</td><td><div style="display: flex; align-items: center; gap: 10px;"><span style="background: linear-gradient(90deg, #28a745 0%, #28a745 ${ticket.probability}%, #e9ecef ${ticket.probability}%, #e9ecef 100%); height: 20px; width: 200px; border-radius: 10px; display: inline-block;"></span><strong style="color: #28a745;">${escapeHtml(String(ticket.probability))}%</strong></div></td></tr>` : ''}
+                                    ${ticket.expected_revenue !== undefined ? `<tr><td>💵 Ingresos Esperados</td><td><span style="color: #28a745; font-size: 1.2em; font-weight: 700;">💵 $${escapeHtml(String(ticket.expected_revenue))}</span></td></tr>` : ''}
                                 </table>
                             </div>
                         </div>
                         ` : ''}
                         
                         ${ticket.ticket_type_id_name ? `
-                        <div class="row">
+                        <div class="row" style="margin-top: 20px;">
                             <div class="col-12">
-                                <h5>🏷️ Categorización</h5>
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>🏷️</span> Categorización y Clasificación
+                                </h5>
                                 <table class="info-table">
-                                    <tr><td><strong>Tipo de ticket:</strong></td><td>${ticket.ticket_type_id_name}</td></tr>
+                                    <tr><td>🏷️ Tipo de Ticket</td><td><span class="badge" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; padding: 6px 12px; border-radius: 15px; font-size: 0.9em;">🏷️ ${escapeHtml(ticket.ticket_type_id_name)}</span></td></tr>
                                 </table>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${(ticket.tag_ids && ticket.tag_ids.length > 0) ? `
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="col-12">
+                                <h5 style="color: #875A7B; display: flex; align-items: center; gap: 8px;">
+                                    <span>🏷️</span> Etiquetas
+                                </h5>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    ${ticket.tag_ids.map(tag => `<span class="badge" style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.85em;">🏷️ ${escapeHtml(tag.toString())}</span>`).join('')}
+                                </div>
                             </div>
                         </div>
                         ` : ''}
                     </div>
                 </div>
+            `; // End of enhanced structured HTML
+
+            // Enhanced Raw Data Section
+            html += `
+                <div class="card" style="margin-top: 30px; border: 2px solid #875A7B; border-radius: 12px; box-shadow: 0 4px 15px rgba(135, 90, 123, 0.1);">
+                    <div style="background: linear-gradient(135deg, #875A7B 0%, #6d4c63 100%); color: white; padding: 15px; border-radius: 10px 10px 0 0; margin: -1px -1px 0 -1px;">
+                        <h5 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.3em;">📋</span>
+                            <strong>Datos Técnicos Completos (Raw Data)</strong>
+                        </h5>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 0.9em;">Información técnica detallada para desarrolladores y administradores</p>
+                    </div>
+                    <div style="padding: 20px;">
+                        <table class="fields-table" style="margin-top: 0;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                    <th style="width: 30%; color: #875A7B; font-weight: 700;">🔑 Campo Técnico</th>
+                                    <th style="color: #875A7B; font-weight: 700;">💾 Valor de Base de Datos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            const sortedKeys = Object.keys(ticket).sort();
+
+            for (const key of sortedKeys) {
+                const value = ticket[key];
+                let displayValue = '';
+                let fieldIcon = getFieldIcon(key);
+
+                if (value === false) {
+                    displayValue = '<code style="background: #f8d7da; color: #721c24; padding: 2px 6px; border-radius: 4px;">❌ false</code>';
+                } else if (value === true) {
+                    displayValue = '<code style="background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px;">✅ true</code>';
+                } else if (value === null || value === undefined) {
+                    displayValue = '<em style="color: #6c757d; background: #f8f9fa; padding: 2px 6px; border-radius: 4px;">⚪ Nulo/No Definido</em>';
+                } else if (Array.isArray(value)) {
+                    if (value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'string' && key.endsWith('_id')) {
+                        displayValue = `<div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 1px solid #90caf9; border-radius: 8px; padding: 8px;"><strong style="color: #1565c0;">${escapeHtml(String(value[1]))}</strong> <small style="color: #757575;">(ID: ${value[0]})</small><br><small class="text-muted" style="color: #9e9e9e;">[🔗 Relación Many2one]</small></div>`;
+                    } else if (key.endsWith('_ids') || (Array.isArray(value[0]) && typeof value[0][0] === 'number') || (value.every(item => typeof item === 'number'))) {
+                         displayValue = `<div class="field-value-object" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 1px solid #ffcc02; max-height: 200px;" title="Lista de IDs o comandos M2M/O2M"><strong style="color: #e65100;">🔗 ${value.length} elemento(s)</strong><br><code style="font-size: 0.8em;">${escapeHtml(JSON.stringify(value, null, 2))}</code></div>`;
+                    } else {
+                        displayValue = `<div class="field-value-object" style="background: #f3e5f5; border: 1px solid #ce93d8; max-height: 200px;"><strong style="color: #7b1fa2;">📋 Array (${value.length} elementos)</strong><br><code style="font-size: 0.8em;">${escapeHtml(JSON.stringify(value, null, 2))}</code></div>`;
+                    }
+                } else if (typeof value === 'object' && value !== null) {
+                    displayValue = `<div class="field-value-object" style="background: #e8f5e8; border: 1px solid #a5d6a7; max-height: 200px;"><strong style="color: #2e7d32;">🗂️ Objeto</strong><br><code style="font-size: 0.8em;">${escapeHtml(JSON.stringify(value, null, 2))}</code></div>`;
+                } else {
+                    let tempString = String(value);
+                    if (tempString.includes('\\n') || tempString.includes('\\r\\n')) {
+                        displayValue = `<div class="field-value-object" style="white-space: pre-wrap; max-height: 150px; overflow-y: auto; background: #f8f9fa; border: 1px solid #dee2e6;"><strong style="color: #495057;">📄 Texto multilínea</strong><br>${escapeHtml(tempString)}</div>`;
+                    } else if (tempString.length > 150) { 
+                         displayValue = `<div style="max-height: 100px; overflow-y: auto; word-break: break-all; background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); border: 1px solid #fff176; padding: 8px; border-radius: 6px;"><strong style="color: #f57f17;">📝 Texto largo (${tempString.length} caracteres)</strong><br>${escapeHtml(tempString)}</div>`;
+                    } else if (key.toLowerCase().includes('email')) {
+                        displayValue = `<a href="mailto:${escapeHtml(tempString)}" style="color: #007bff; font-weight: 600; text-decoration: none;">📧 ${escapeHtml(tempString)}</a>`;
+                    } else if (key.toLowerCase().includes('phone') || key.toLowerCase().includes('mobile')) {
+                        displayValue = `<a href="tel:${escapeHtml(tempString)}" style="color: #28a745; font-weight: 600; text-decoration: none;">📞 ${escapeHtml(tempString)}</a>`;
+                    } else if (key.toLowerCase().includes('url') || key.toLowerCase().includes('website')) {
+                        displayValue = `<a href="${escapeHtml(tempString)}" target="_blank" style="color: #17a2b8; font-weight: 600; text-decoration: none;">🌐 ${escapeHtml(tempString)}</a>`;
+                    } else {
+                        displayValue = `<span style="color: #495057;">${escapeHtml(tempString)}</span>`;
+                    }
+                }
+                html += `<tr style="border-bottom: 1px solid #e9ecef;"><td style="word-break: break-all; background: #f8f9fa; font-family: 'Courier New', monospace; vertical-align: top;"><strong style="color: #875A7B;">${fieldIcon} ${escapeHtml(key)}</strong></td><td style="vertical-align: top;">${displayValue}</td></tr>`;
+            }
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             `;
             
-            document.getElementById('read-ticket-result').innerHTML = html;
+            resultDiv.innerHTML = html;
+
+        } else if (ticket && typeof ticket === 'object' && Object.keys(ticket).length === 0) {
+            // Ticket was found, but it's an empty object (e.g., no fields returned).
+            resultDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <h4>🎫 Ticket Encontrado (${escapeHtml(model)})</h4>
+                    <p>ID del Ticket: ${ticket.id || 'Desconocido (ticket vacío)'}</p>
+                    <p>El ticket fue encontrado pero no se devolvieron campos para mostrar.</p>
+                </div>`;
+        } else { 
+            // Ticket is null, undefined, or not a usable object.
+            // This case implies an issue with data returned from the server (e.g. ticket not found but success was true, or data malformed).
+            resultDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <h4>⚠️ Datos del Ticket Inválidos o Ausentes</h4>
+                    <p>Se esperaba información del ticket para el modelo '${escapeHtml(model)}' pero no se recibió o está en un formato incorrecto.</p>
+                    <p>Esto puede ocurrir si el ticket con el ID proporcionado no existe en el modelo seleccionado, o si hubo un problema al procesar sus datos en el servidor.</p>
+                    <p>Por favor, verifique el ID del ticket y el modelo seleccionado.</p>
+                </div>`;
         }
+    } catch (e) {
+        console.error("Error in displayAllTicketFields:", e);
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error crítico al intentar mostrar los detalles del ticket: ${escapeHtml(e.message)}. Por favor, revise la consola del navegador para más detalles técnicos.</div>`;
+    }
+}
         
-        function getPriorityIcon(priority) {
-            switch (priority?.toString()) {
-                case '0': return '🔵'; // Baja
-                case '1': return '🟢'; // Normal
-                case '2': return '🟡'; // Alta
-                case '3': return '🔴'; // Urgente
-                default: return '⚪'; // Desconocida
+        // ----- FUNCIONES PARA EDITAR TICKETS -----
+        function setupEditTicketForm() {
+            console.log('✏️ Configurando formulario de edición de tickets...');
+            const searchForm = document.getElementById('edit-ticket-search-form');
+            const updateForm = document.getElementById('edit-ticket-update-form');
+
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    searchTicketForEdit();
+                });
+            } else {
+                console.error('❌ No se encontró el formulario edit-ticket-search-form');
+            }
+
+            if (updateForm) {
+                updateForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitTicketUpdate();
+                });
+            } else {
+                console.error('❌ No se encontró el formulario edit-ticket-update-form');
+            }
+            // Cargar usuarios para el dropdown de técnico asignado (similar a crear ticket)
+            // Podríamos optimizar esto para no llamar si ya están cargados
+            loadUsersForEditTicketForm();
+            console.log('✅ Formulario de edición de tickets configurado.');
+        }
+
+        function searchTicketForEdit() {
+            console.log('🔍 Buscando ticket para editar...');
+            const ticketId = document.getElementById('edit-ticket-id').value;
+            const model = document.getElementById('edit-ticket-model').value;
+            const resultDiv = document.getElementById('edit-ticket-search-result');
+            const loadingDiv = document.getElementById('edit-ticket-search-loading');
+
+            if (!ticketId || !model) {
+                resultDiv.innerHTML = '<div class="alert alert-danger">Por favor, introduce el ID y selecciona el Modelo del ticket.</div>';
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            resultDiv.innerHTML = '';
+            document.getElementById('edit-ticket-form-section').style.display = 'none';
+
+
+            google.script.run
+                .withSuccessHandler(onSearchTicketForEditSuccess)
+                .withFailureHandler(onSearchTicketForEditFailure)
+                .getOdooTicketDetails({ ticketId: ticketId, model: model }); // Esta función se creará en Codigo.gs
+        }
+
+        function onSearchTicketForEditSuccess(response) {
+            console.log('✅ Ticket encontrado para edición:', response);
+            document.getElementById('edit-ticket-search-loading').style.display = 'none';
+            const resultDiv = document.getElementById('edit-ticket-search-result');
+            const editSection = document.getElementById('edit-ticket-form-section');
+
+            if (response.success && response.ticket) {
+                resultDiv.innerHTML = '<div class="alert alert-success">Ticket encontrado. Puedes editarlo a continuación.</div>';
+                editSection.style.display = 'block';
+                populateEditTicketForm(response.ticket, response.model);
+                // Cargar etapas/estados específicos para el modelo del ticket
+                loadStagesForEditTicketForm(response.model, response.ticket.stage_id ? response.ticket.stage_id[0] : null);
+
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${response.error || 'No se pudo encontrar el ticket.'}</div>`;
+                editSection.style.display = 'none';
             }
         }
+
+        function onSearchTicketForEditFailure(error) {
+            console.error('❌ Error buscando ticket para editar:', error);
+            document.getElementById('edit-ticket-search-loading').style.display = 'none';
+            document.getElementById('edit-ticket-search-result').innerHTML = 
+                `<div class="alert alert-danger">Error de comunicación: ${error.message || error}</div>`;
+            document.getElementById('edit-ticket-form-section').style.display = 'none';
+        }
+
+        function populateEditTicketForm(ticket, model) {
+            console.log('✏️ Poblando formulario de edición con datos del ticket:', ticket);
+            document.getElementById('update-ticket-original-id').value = ticket.id;
+            document.getElementById('update-ticket-original-model').value = model;
+            document.getElementById('editing-ticket-id-model').textContent = `(ID: ${ticket.id}, Modelo: ${model})`;
+
+            document.getElementById('update-ticket-name').value = ticket.name || '';
+            document.getElementById('update-ticket-description').value = ticket.description || '';
+            
+            const prioritySelect = document.getElementById('update-ticket-priority');
+            if (ticket.priority !== undefined && ticket.priority !== null) {
+                 prioritySelect.value = ticket.priority.toString();
+            } else {
+                 prioritySelect.value = '1'; // Default a Normal si no viene
+            }
+
+            const userSelect = document.getElementById('update-ticket-user-id');
+            if (ticket.user_id && ticket.user_id[0]) { // user_id es Many2one [id, name]
+                userSelect.value = ticket.user_id[0];
+            } else if (ticket.user_ids && ticket.user_ids.length > 0) { // para project.task que usa user_ids (Many2many)
+                 userSelect.value = ticket.user_ids[0][0]; // Tomamos el primer usuario asignado si hay varios
+            }
+            else {
+                userSelect.value = '';
+            }
+            
+            // Limpiar campos específicos del modelo por si acaso
+            document.getElementById('edit-ticket-model-specific-fields').innerHTML = '';
+
+            // Aquí se podrían añadir lógicas para campos específicos del modelo
+            // if (model === 'project.task') { ... }
+            // if (model === 'crm.lead') { ... }
+        }
         
+        function loadUsersForEditTicketForm() {
+            console.log('👥 Cargando usuarios para el formulario de edición de tickets...');
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    const dropdown = document.getElementById('update-ticket-user-id');
+                    dropdown.innerHTML = '<option value="">-- Seleccionar técnico --</option>';
+                    if (response.success && response.users && response.users.length > 0) {
+                        response.users.forEach(user => {
+                            const option = document.createElement('option');
+                            option.value = user.id;
+                            option.textContent = user.name;
+                            dropdown.appendChild(option);
+                        });
+                    } else {
+                        dropdown.innerHTML = '<option value="">-- No hay usuarios --</option>';
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('❌ Error cargando usuarios para edición:', error);
+                    document.getElementById('update-ticket-user-id').innerHTML = '<option value="">❌ Error cargando</option>';
+                })
+                .getOdooUsersForForm(); // Reutilizamos la función existente
+        }
+
+        function loadStagesForEditTicketForm(model, currentStageId) {
+            console.log(`🔄 Cargando estados para el modelo ${model} (actual: ${currentStageId})...`);
+            const stageDropdown = document.getElementById('update-ticket-stage-id');
+            stageDropdown.innerHTML = '<option value="">⏳ Cargando estados...</option>';
+            stageDropdown.disabled = true;
+
+            // Necesitaremos una nueva función en Codigo.gs para obtener etapas según el modelo
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    stageDropdown.innerHTML = '<option value="">-- Seleccionar estado --</option>';
+                    stageDropdown.disabled = false;
+                    if (response.success && response.stages && response.stages.length > 0) {
+                        response.stages.forEach(stage => {
+                            const option = document.createElement('option');
+                            option.value = stage.id;
+                            option.textContent = stage.name;
+                            if (currentStageId && stage.id === currentStageId) {
+                                option.selected = true;
+                            }
+                            stageDropdown.appendChild(option);
+                        });
+                    } else {
+                        stageDropdown.innerHTML = '<option value="">-- No hay estados --</option>';
+                        if(response.error) console.error('Error en respuesta de etapas:', response.error);
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error(`❌ Error cargando estados para ${model}:`, error);
+                    stageDropdown.innerHTML = '<option value="">❌ Error cargando</option>';
+                    stageDropdown.disabled = false;
+                })
+                .getOdooStagesForModel({ model: model }); // Nueva función en Codigo.gs
+        }
+
+
+        function submitTicketUpdate() {
+            console.log('💾 Enviando actualización de ticket...');
+            const resultDiv = document.getElementById('edit-ticket-update-result');
+            const loadingDiv = document.getElementById('edit-ticket-update-loading');
+
+            loadingDiv.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            const ticketData = {
+                id: document.getElementById('update-ticket-original-id').value,
+                model: document.getElementById('update-ticket-original-model').value,
+                name: document.getElementById('update-ticket-name').value,
+                description: document.getElementById('update-ticket-description').value,
+                priority: document.getElementById('update-ticket-priority').value,
+                user_id: document.getElementById('update-ticket-user-id').value || null, // Enviar null si está vacío
+                stage_id: document.getElementById('update-ticket-stage-id').value || null, // Enviar null si está vacío
+                // Aquí se podrían añadir más campos específicos del modelo
+            };
+            
+            // Para project.task, el campo de asignado es 'user_ids' y es Many2many
+            // Si el modelo es project.task y hay un user_id seleccionado, lo formateamos como espera Odoo para un M2M replace.
+            if (ticketData.model === 'project.task' && ticketData.user_id) {
+                ticketData.user_ids = [[6, 0, [parseInt(ticketData.user_id, 10)]]]; // Reemplaza con el usuario seleccionado
+                delete ticketData.user_id; // Eliminamos user_id ya que project.task usa user_ids
+            } else if (ticketData.model === 'project.task' && !ticketData.user_id) {
+                 ticketData.user_ids = [[5, 0, 0]]; // Elimina todas las asignaciones si no se selecciona ninguno
+                 delete ticketData.user_id;
+            }
+
+
+            console.log('💾 Datos para actualizar:', ticketData);
+
+            google.script.run
+                .withSuccessHandler(onUpdateTicketSuccess)
+                .withFailureHandler(onUpdateTicketFailure)
+                .updateOdooTicket(ticketData); // Esta función se creará en Codigo.gs
+        }
+
+        function onUpdateTicketSuccess(response) {
+            console.log('✅ Ticket actualizado con éxito:', response);
+            document.getElementById('edit-ticket-update-loading').style.display = 'none';
+            const resultDiv = document.getElementById('edit-ticket-update-result');
+
+            if (response.success) {
+                resultDiv.innerHTML = '<div class="alert alert-success">¡Ticket actualizado correctamente!</div>';
+                // Opcional: recargar los datos o limpiar el formulario de edición
+                // document.getElementById('edit-ticket-form-section').style.display = 'none';
+                // document.getElementById('edit-ticket-search-form').reset();
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">Error al actualizar: ${response.error}</div>`;
+            }
+        }
+
+        function onUpdateTicketFailure(error) {
+            console.error('❌ Error actualizando ticket:', error);
+            document.getElementById('edit-ticket-update-loading').style.display = 'none';
+            document.getElementById('edit-ticket-update-result').innerHTML = 
+                `<div class="alert alert-danger">Error de comunicación al actualizar: ${error.message || error}</div>`;
+        }
+
+        function cancelEditTicket() {
+            document.getElementById('edit-ticket-form-section').style.display = 'none';
+            document.getElementById('edit-ticket-search-result').innerHTML = '';
+            document.getElementById('edit-ticket-update-result').innerHTML = '';
+            document.getElementById('edit-ticket-search-form').reset();
+             document.getElementById('edit-ticket-update-form').reset();
+            console.log('🚫 Edición cancelada.');
+        }
+
         // ----- FUNCIONES PARA ARCHIVOS ADJUNTOS -----
         let selectedFiles = [];
         
@@ -1689,7 +2533,122 @@
                     
                     reader.readAsDataURL(fileObj.file);
                 });
+            });        }
+        
+        // ----- FUNCIONES PARA USUARIOS -----
+        function setupUsersTab() {
+            console.log('👥 Configurando pestaña de usuarios...');
+            // No hay formularios específicos que configurar, solo funciones de carga
+            console.log('✅ Pestaña de usuarios configurada correctamente');
+        }
+        
+        function loadUsersData() {
+            console.log('👥 Cargando datos de usuarios desde Odoo...');
+            
+            // Mostrar indicador de carga
+            document.getElementById('users-loading').style.display = 'block';
+            document.getElementById('users-result').innerHTML = '';
+            document.getElementById('users-summary').style.display = 'none';
+            
+            // Llamar al backend para obtener usuarios con información comercial
+            google.script.run
+                .withSuccessHandler(onUsersSuccess)
+                .withFailureHandler(onUsersFailure)
+                .getOdooUsersWithCommercialInfo();
+        }
+        
+        function onUsersSuccess(response) {
+            console.log('✅ Respuesta de usuarios exitosa:', response);
+            document.getElementById('users-loading').style.display = 'none';
+            
+            if (response.success && response.users) {
+                displayUsersTable(response.users);
+                showUsersSummary(response.users.length);
+            } else {
+                document.getElementById('users-result').innerHTML = 
+                    `<div class="alert alert-warning">
+                        <h4>⚠️ No se pudieron cargar los usuarios</h4>
+                        <p>${response.error || 'Error desconocido'}</p>
+                    </div>`;
+            }
+        }
+        
+        function onUsersFailure(error) {
+            console.error('❌ Error cargando usuarios:', error);
+            document.getElementById('users-loading').style.display = 'none';
+            document.getElementById('users-result').innerHTML = 
+                `<div class="alert alert-danger">
+                    <h4>❌ Error de conexión</h4>
+                    <p>${error.message || error}</p>
+                    <small>Verifique la configuración de Odoo en la pestaña Diagnóstico.</small>
+                </div>`;
+        }
+        
+        function displayUsersTable(users) {
+            const resultDiv = document.getElementById('users-result');
+            
+            if (!users || users.length === 0) {
+                resultDiv.innerHTML = 
+                    `<div class="alert alert-info">
+                        <h4>📋 Sin usuarios</h4>
+                        <p>No se encontraron usuarios en el sistema.</p>
+                    </div>`;
+                return;
+            }
+            
+            let html = `
+                <div class="users-table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Login</th>
+                                <th>Email</th>
+                                <th>Grupo Comercial</th>
+                                <th>Estado</th>
+                                <th>Última Conexión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td><strong>${escapeHtml(user.name || 'Sin nombre')}</strong></td>
+                        <td>${escapeHtml(user.login || 'Sin login')}</td>
+                        <td>${user.email ? `<a href="mailto:${escapeHtml(user.email)}">${escapeHtml(user.email)}</a>` : 'Sin email'}</td>
+                        <td>${escapeHtml(user.commercial_group || 'Sin grupo')}</td>
+                        <td>
+                            <span class="badge ${user.active ? 'badge-success' : 'badge-secondary'}">
+                                ${user.active ? '✅ Activo' : '❌ Inactivo'}
+                            </span>
+                        </td>
+                        <td>${user.login_date ? escapeHtml(user.login_date) : 'Nunca'}</td>
+                    </tr>
+                `;
             });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        function showUsersSummary(totalUsers) {
+            const summaryDiv = document.getElementById('users-summary');
+            const countDiv = document.getElementById('users-count');
+            const timestampDiv = document.getElementById('users-timestamp');
+            
+            countDiv.textContent = `Total de usuarios: ${totalUsers}`;
+            timestampDiv.textContent = new Date().toLocaleString('es-ES');
+            
+            summaryDiv.style.display = 'block';
         }
         
         // ----- FUNCIONES PARA DIAGNÓSTICO -----
@@ -1959,6 +2918,62 @@
                 .clearLogs();        }
         
         // ----- FUNCIONES COMUNES -----
+          function escapeHtml(unsafe) {
+            if (unsafe === null || typeof unsafe === 'undefined') return '';
+            return String(unsafe) // Ensure it's a string
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+          function getPriorityIcon(priority) {
+            switch (priority?.toString()) {
+                case '0': return '🔵'; // Baja
+                case '1': return '🟢'; // Normal
+                case '2': return '🟡'; // Alta
+                case '3': return '🔴'; // Urgente
+                default: return '⚪'; // Desconocida
+            }
+        }
+        
+        function getPriorityText(priority) {
+            switch (priority?.toString()) {
+                case '0': return 'Baja';
+                case '1': return 'Normal';
+                case '2': return 'Alta';
+                case '3': return 'Urgente';
+                default: return 'Desconocida';
+            }
+        }
+        
+        function getKanbanStateIcon(state) {
+            switch (state?.toLowerCase()) {
+                case 'normal': return '🟢';
+                case 'done': return '✅';
+                case 'blocked': return '🚫';
+                default: return '⚪';
+            }
+        }
+        
+        function getFieldIcon(fieldName) {
+            // Iconos según el tipo o propósito del campo
+            if (fieldName.includes('id')) return '🔑';
+            if (fieldName.includes('name')) return '📝';
+            if (fieldName.includes('date') || fieldName.includes('time')) return '📅';
+            if (fieldName.includes('description')) return '📄';
+            if (fieldName.includes('email')) return '📧';
+            if (fieldName.includes('phone') || fieldName.includes('mobile')) return '📞';
+            if (fieldName.includes('user') || fieldName.includes('partner')) return '👤';
+            if (fieldName.includes('team')) return '👥';
+            if (fieldName.includes('tag')) return '🏷️';
+            if (fieldName.includes('state') || fieldName.includes('status')) return '🔄';
+            if (fieldName.includes('priority')) return '⚡';
+            if (fieldName.includes('url') || fieldName.includes('website')) return '🌐';
+            if (fieldName.includes('price') || fieldName.includes('cost') || fieldName.includes('amount')) return '💰';
+            // Valor por defecto
+            return '📎';
+        }
         
         function resetForm(formId) {
             console.log('🧹 Limpiando formulario:', formId);
